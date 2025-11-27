@@ -1,11 +1,9 @@
 import { useRef, useEffect } from "react";
+import { GraphModel } from "../canvas/GraphModel";
+import { GraphView } from "../canvas/GraphView";
+import { GraphController } from "../canvas/GraphController";
 
-interface GraphCanvasProps {
-  width?: number;
-  height?: number;
-}
-
-export default function GraphCanvas({ width = 800, height = 600 }: GraphCanvasProps) {
+export default function GraphCanvas({ width = 800, height = 600 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -15,15 +13,21 @@ export default function GraphCanvas({ width = 800, height = 600 }: GraphCanvasPr
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Example: fill background
-    ctx.fillStyle = "#f0f0f0";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const model = new GraphModel();
+    const view = new GraphView(ctx, model);
+    const controller = new GraphController(model);
 
-    // Example: draw something
-    ctx.fillStyle = "blue";
-    ctx.fillRect(50, 50, 150, 100);
+    const handleClick = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      controller.handleClick(e.clientX - rect.left, e.clientY - rect.top);
+      view.render();
+    };
 
-    // Later: replace with your dynamic rendering logic
+    canvas.addEventListener("click", handleClick);
+
+    view.render();
+
+    return () => canvas.removeEventListener("click", handleClick);
   }, []);
 
   return (
@@ -31,7 +35,7 @@ export default function GraphCanvas({ width = 800, height = 600 }: GraphCanvasPr
       ref={canvasRef}
       width={width}
       height={height}
-      style={{ border: "1px solid black", display: "block", marginTop: 20 }}
+      style={{ border: "1px solid black", marginTop: 20 }}
     />
   );
 }
