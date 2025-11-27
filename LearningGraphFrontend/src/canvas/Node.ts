@@ -8,6 +8,7 @@ export class GraphNode implements Drawable {
   label: string;
   radius: number = 25;
   neighbors = new Set<number>();
+  isHovered: boolean = false;
 
   constructor(id: number, position: Coordinate, label: string) {
     this.id = id;
@@ -31,7 +32,11 @@ export class GraphNode implements Drawable {
     // Draw circle
     ctx.beginPath();
     ctx.arc(x, y, this.radius * model.zoomLevel, 0, Math.PI * 2);
-    ctx.fillStyle = "lightblue";
+    if (this.isHovered) {
+        ctx.fillStyle = "darkblue";
+    } else {
+        ctx.fillStyle = "lightblue";
+    }
     ctx.fill();
     ctx.strokeStyle = "black";
     ctx.stroke();

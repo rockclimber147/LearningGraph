@@ -59,7 +59,7 @@ export class GraphController {
 
   handleMouseInteractions(view: { render: () => void }) {
     const m = this.mouseState;
-
+    this.model.updateHover(m.lastCoords)
     // ---- Left click adds a node ----
     if (m.leftDown && !m.wasLeftDown) {
       const nodePosition = this.model.screenToModelCoords(m.lastCoords);

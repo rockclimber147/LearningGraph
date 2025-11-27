@@ -87,6 +87,16 @@ export class GraphModel {
     this._zoomLevel = z;
   }
 
+  updateHover(mousePosition: Coordinate) {
+    this.nodes.forEach(node => {
+      if (node.position.clone().sub(mousePosition).length() < node.radius) {
+        node.isHovered = true;
+      } else {
+        node.isHovered = false;
+      }
+    })
+  }
+
   layoutStep() {
     const repulsion = 2000;        // strength of repulsive force
     const damping = 0.55;          // velocity damping
