@@ -33,6 +33,14 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
     canvas.addEventListener("click", handleMouse);
     canvas.addEventListener("wheel", handleWheel);
 
+  const animate = () => {
+    model.layoutStep();
+    view.render();
+    requestAnimationFrame(animate);
+  };
+
+  animate();
+
     view.render();
 
     return () => {

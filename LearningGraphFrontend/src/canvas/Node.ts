@@ -4,6 +4,7 @@ import { GraphModel, Coordinate } from "./GraphModel";
 export class GraphNode implements Drawable {
   id: number;
   position: Coordinate;
+  velocity: Coordinate = new Coordinate(0, 0);
   label: string;
   radius: number = 25;
   neighbors = new Set<number>();
