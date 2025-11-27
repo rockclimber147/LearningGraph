@@ -1,9 +1,4 @@
-export interface GraphNode {
-  id: string;
-  position: Coordinate;
-  label: string;
-  radius: number;
-}
+import { GraphNode } from "./Node";
 
 export class GraphModel {
   nodes: GraphNode[] = [];

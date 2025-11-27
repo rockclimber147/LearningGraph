@@ -1,5 +1,6 @@
 import { GraphModel, Coordinate } from "./GraphModel";
 import { MouseState, MouseButtons } from "./MouseState";
+import { GraphNode } from "./Node";
 
 export class GraphController {
   private model: GraphModel;
@@ -65,12 +66,13 @@ export class GraphController {
     // ---- Left click adds a node ----
     if (m.leftDown && !m.wasLeftDown) {
       const nodePosition = this.model.screenToModelCoords(m.lastCoords);
-      this.model.addNode({
-        id: Date.now().toString(),
-        position: nodePosition,
-        label: "Node",
-        radius: 25
-      });
+      this.model.addNode(
+        new GraphNode(
+          Date.now().toString(),
+          nodePosition,
+          "Node"
+        )
+      );
     }
 
     // ---- Middle drag to pan ----
