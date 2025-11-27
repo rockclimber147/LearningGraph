@@ -18,8 +18,8 @@ export class GraphView {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    model.nodes.forEach(node => {
-      node.draw(ctx, model);
-    });
+    model.layers.forEach(layer => {
+      layer.forEach(drawable => drawable.draw(ctx, model))
+    })
   }
 }
