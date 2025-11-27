@@ -173,7 +173,7 @@ export class GraphModel {
       node.velocity.add(forces.get(node)!);
       node.velocity.scale(damping);
       node.position.add(node.velocity);
-    }
+    } 
   }
 }
 

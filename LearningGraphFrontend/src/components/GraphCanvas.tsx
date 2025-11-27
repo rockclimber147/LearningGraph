@@ -27,14 +27,20 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
       view.render();
     };
 
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
     canvas.addEventListener("mousemove", handleMouse);
     canvas.addEventListener("mousedown", handleMouse);
     canvas.addEventListener("mouseup", handleMouse);
     canvas.addEventListener("click", handleMouse);
     canvas.addEventListener("wheel", handleWheel);
+    canvas.addEventListener("contextmenu", handleContextMenu);
 
   const animate = () => {
     model.layoutStep();
+    controller.handleMouseInteractions(view);
     view.render();
     requestAnimationFrame(animate);
   };
@@ -49,6 +55,7 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
       canvas.removeEventListener("mouseup", handleMouse);
       canvas.removeEventListener("click", handleMouse);
       canvas.removeEventListener("wheel", handleWheel);
+      canvas.removeEventListener("contextmenu", handleContextMenu);
     };
   }, []);
 

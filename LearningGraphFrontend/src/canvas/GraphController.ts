@@ -60,8 +60,8 @@ export class GraphController {
   handleMouseInteractions(view: { render: () => void }) {
     const m = this.mouseState;
     this.model.updateHover(m.lastCoords)
-    // ---- Left click adds a node ----
-    if (m.leftDown && !m.wasLeftDown) {
+    // ---- Right click adds a node ----
+    if (m.rightDown && !m.wasRightDown) {
       const nodePosition = this.model.screenToModelCoords(m.lastCoords);
       const toAdd = new GraphNode(
           NodeIdGenerator.nextId(),
@@ -69,11 +69,16 @@ export class GraphController {
           `Node ${NodeIdGenerator.getCurrId()}`
         )
       this.model.addNode(toAdd)
+    } if (m.leftDown) {
+      
       this.model.setClicked(m.lastCoords)
-    } if (m.leftDown && this.model.draggedNode) {
-      const lastModelCoords = this.model.screenToModelCoords(m.lastCoords)
-      this.model.draggedNode.position.x = lastModelCoords.x;
-      this.model.draggedNode.position.y = lastModelCoords.y;
+      if (this.model.draggedNode) {
+        const lastModelCoords = this.model.screenToModelCoords(m.lastCoords)
+        this.model.draggedNode.position.x = lastModelCoords.x;
+        this.model.draggedNode.position.y = lastModelCoords.y;
+      }
+    } if (!m.leftDown && this.model.draggedNode) {
+      this.model.draggedNode = null;
     }
 
     // ---- Middle drag to pan ----
@@ -85,6 +90,7 @@ export class GraphController {
 
     // Save previous states for edge detection
     m.wasLeftDown = m.leftDown;
+    m.wasRightDown = m.rightDown;
     m.wasMiddleDown = m.middleDown;
     m.lastDragCoords = m.lastCoords.clone();
 
