@@ -11,8 +11,8 @@ export class GraphController {
     const m = this.model;
     m.addNode({
       id: Date.now().toString(),
-      x: x - m.globalXOffset,
-      y: y - m.globalYOffset,
+      x: x - m.globalOffset.x,
+      y: y - m.globalOffset.y,
       label: "Node",
     });
   }

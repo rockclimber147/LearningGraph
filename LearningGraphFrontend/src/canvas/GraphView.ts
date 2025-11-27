@@ -14,8 +14,8 @@ export class GraphView {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    const xOffset = model.globalXOffset;
-    const yOffset = model.globalYOffset;
+    const xOffset = model.globalOffset.x;
+    const yOffset = model.globalOffset.y;
 
     model.nodes.forEach(node => {
       const x = node.x + xOffset;
