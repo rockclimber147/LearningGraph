@@ -18,8 +18,8 @@ export class GraphView {
     const yOffset = model.globalOffset.y;
 
     model.nodes.forEach(node => {
-      const x = node.x + xOffset;
-      const y = node.y + yOffset;
+      const x = node.position.x + xOffset;
+      const y = node.position.y + yOffset;
       const radius = 25;
 
       // Draw circle

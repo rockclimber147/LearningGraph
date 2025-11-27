@@ -1,7 +1,6 @@
 export interface GraphNode {
   id: string;
-  x: number;
-  y: number;
+  position: Coordinate;
   label: string;
 }
 

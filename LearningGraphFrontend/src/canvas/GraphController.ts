@@ -1,4 +1,4 @@
-import { GraphModel } from "./GraphModel";
+import { GraphModel, Coordinate } from "./GraphModel";
 
 export class GraphController {
   private model: GraphModel;
@@ -11,8 +11,10 @@ export class GraphController {
     const m = this.model;
     m.addNode({
       id: Date.now().toString(),
-      x: x - m.globalOffset.x,
-      y: y - m.globalOffset.y,
+      position: new Coordinate(
+        x - m.globalOffset.x,
+        y - m.globalOffset.y,
+      ),
       label: "Node",
     });
   }
