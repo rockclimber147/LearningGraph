@@ -1,6 +1,6 @@
 import { GraphModel, Coordinate } from "./GraphModel";
 import { MouseState, MouseButtons } from "./MouseState";
-import { GraphNode } from "./Node";
+import { GraphNode, NodeIdGenerator } from "./Node";
 
 export class GraphController {
   private model: GraphModel;
@@ -47,11 +47,8 @@ export class GraphController {
       newZoom /= zoomFactor;
     }
 
-    // clamp zoom to reasonable range
     newZoom = Math.max(0.1, Math.min(10, newZoom));
 
-    // Compute new offset so that the point under mouse stays the same
-    // formula: newOffset = mousePos - ((mousePos - oldOffset) * newZoom / oldZoom)
     const offset = model.globalOffset;
     const dx = mousePos.x - ((mousePos.x - offset.x) * newZoom) / oldZoom;
     const dy = mousePos.y - ((mousePos.y - offset.y) * newZoom) / oldZoom;
@@ -66,13 +63,12 @@ export class GraphController {
     // ---- Left click adds a node ----
     if (m.leftDown && !m.wasLeftDown) {
       const nodePosition = this.model.screenToModelCoords(m.lastCoords);
-      this.model.addNode(
-        new GraphNode(
-          Date.now().toString(),
+      const toAdd = new GraphNode(
+          NodeIdGenerator.nextId(),
           nodePosition,
           "Node"
         )
-      );
+      this.model.addNode(toAdd);
     }
 
     // ---- Middle drag to pan ----

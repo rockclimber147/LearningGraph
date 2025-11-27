@@ -1,4 +1,5 @@
 import { type Drawable } from "./GraphView";
+import { GraphNode } from "./Node";
 import { GraphModel, Coordinate } from "./GraphModel";
 
 export class Line implements Drawable {
@@ -22,4 +23,22 @@ export class Line implements Drawable {
     ctx.stroke();
     ctx.closePath();
   }
+}
+
+export class NodeConnection extends Line {
+    startNode: GraphNode;
+    endNode: GraphNode;
+
+    constructor(start: GraphNode, end: GraphNode) {
+        super(start.position, end.position)
+        this.startNode = start;
+        this.endNode = end;
+    }
+
+    connects(a: number, b: number): boolean {
+    return (
+        (this.startNode.id === a && this.endNode.id === b) ||
+        (this.startNode.id === b && this.endNode.id === a)
+        );
+    }
 }

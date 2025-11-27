@@ -1,10 +1,10 @@
 import { GraphNode } from "./Node";
-import { Line } from "./Drawables";
+import { NodeConnection } from "./Drawables";
 import { type Drawable } from "./GraphView";
 
 export class GraphModel {
   nodes: GraphNode[] = [];
-  lines: Line[] = [];
+  lines: NodeConnection[] = [];
   layers: Drawable[][] = [];
   private _globalOffset = new Coordinate(); // combine x/y offsets
   _zoomLevel: number = 1;
@@ -27,11 +27,43 @@ export class GraphModel {
   }
 
   addNode(node: GraphNode) {
-    this.nodes.forEach(existingNode => this.lines.push(new Line(existingNode.position, node.position)))
     this.nodes.push(node);
+    TempHelper.randomlyConnectNodes(this, node)
   }
 
-  removeNode(id: string) {
+  getNode(id: number): GraphNode | undefined {
+    return this.nodes.find(n => n.id === id);
+  }
+
+  connectNodes(a: number, b: number) {
+    const nodeA = this.getNode(a);
+    const nodeB = this.getNode(b);
+    if (!nodeA || !nodeB) {
+      console.log("No nodes")
+      return;
+    };
+
+    // bidirectional adjacency
+    nodeA.addNeighbor(b);
+    nodeB.addNeighbor(a);
+
+    this.lines.push(new NodeConnection(nodeA, nodeB));
+  }
+
+  removeConnection(a: number, b: number) {
+    const nodeA = this.getNode(a);
+    const nodeB = this.getNode(b);
+    if (!nodeA || !nodeB) return;
+
+    // remove from adjacency lists
+    nodeA.removeNeighbor(b);
+    nodeB.removeNeighbor(a);
+
+    // remove drawable line
+    this.lines = this.lines.filter(l => !l.connects(a, b));
+  }
+
+  removeNode(id: number) {
     this.nodes = this.nodes.filter(n => n.id !== id);
   }
 
@@ -85,5 +117,23 @@ export class Coordinate {
 
   clone() {
     return new Coordinate(this.x, this.y);
+  }
+}
+
+class TempHelper {
+  static randomlyConnectNodes(model: GraphModel, node: GraphNode) {
+    for (const other of model.nodes) {
+      // skip itself
+      if (other.id === node.id) continue;
+
+      // 50% chance
+      if (Math.random() < 0.5) {
+        // skip if already neighbors
+        if (node.neighbors.has(other.id)) continue;
+
+        // create bidirectional graph edge
+        model.connectNodes(node.id, other.id);
+      }
+    }
   }
 }
