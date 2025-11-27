@@ -9,7 +9,6 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -17,17 +16,74 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
     const view = new GraphView(ctx, model);
     const controller = new GraphController(model);
 
+    let isDragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    // ---- Left click to add node ----
     const handleClick = (e: MouseEvent) => {
+      if (e.button !== 0) return; // left button
       const rect = canvas.getBoundingClientRect();
-      controller.handleClick(e.clientX - rect.left, e.clientY - rect.top);
+      controller.handleLeftClick(e.clientX - rect.left, e.clientY - rect.top);
       view.render();
     };
 
-    canvas.addEventListener("click", handleClick);
+    // ---- Middle click drag to pan ----
+    const handleMouseDown = (e: MouseEvent) => {
+      if (e.button === 1) {
+        isDragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      }
+    };
 
+    const handleMouseUp = (e: MouseEvent) => {
+      if (e.button === 1) {
+        isDragging = false;
+      }
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+
+      controller.pan(dx, dy);
+
+      lastX = e.clientX;
+      lastY = e.clientY;
+
+      view.render();
+    };
+
+    // ---- Scroll wheel for zoom placeholder ----
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        console.log("Scroll Up (zoom in)");
+      } else {
+        console.log("Scroll Down (zoom out)");
+      }
+    };
+
+    // Add event listeners
+    canvas.addEventListener("click", handleClick);
+    canvas.addEventListener("mousedown", handleMouseDown);
+    canvas.addEventListener("mouseup", handleMouseUp);
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("wheel", handleWheel);
+
+    // Initial render
     view.render();
 
-    return () => canvas.removeEventListener("click", handleClick);
+    // Cleanup
+    return () => {
+      canvas.removeEventListener("click", handleClick);
+      canvas.removeEventListener("mousedown", handleMouseDown);
+      canvas.removeEventListener("mouseup", handleMouseUp);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("wheel", handleWheel);
+    };
   }, []);
 
   return (

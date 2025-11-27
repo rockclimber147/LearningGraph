@@ -14,12 +14,28 @@ export class GraphView {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    model.nodes.forEach(node => {
-      ctx.fillStyle = "lightblue";
-      ctx.fillRect(node.x - 25, node.y - 25, 50, 50);
+    const xOffset = model.globalXOffset;
+    const yOffset = model.globalYOffset;
 
+    model.nodes.forEach(node => {
+      const x = node.x + xOffset;
+      const y = node.y + yOffset;
+      const radius = 25;
+
+      // Draw circle
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = "lightblue";
+      ctx.fill();
+      ctx.strokeStyle = "black";
+      ctx.stroke();
+      ctx.closePath();
+
+      // Draw label centered
       ctx.fillStyle = "black";
-      ctx.fillText(node.label, node.x, node.y);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(node.label, x, y);
     });
   }
 }

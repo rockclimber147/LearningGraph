@@ -7,12 +7,17 @@ export class GraphController {
     this.model = model;
   }
 
-  handleClick(x: number, y: number) {
-    this.model.addNode({
+  handleLeftClick(x: number, y: number) {
+    const m = this.model;
+    m.addNode({
       id: Date.now().toString(),
-      x,
-      y,
+      x: x - m.globalXOffset,
+      y: y - m.globalYOffset,
       label: "Node",
     });
+  }
+
+  pan(dx: number, dy: number) {
+    this.model.adjustOffset(dx, dy);
   }
 }
