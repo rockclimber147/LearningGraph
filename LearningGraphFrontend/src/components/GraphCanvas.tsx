@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 import { GraphModel } from "../canvas/GraphModel";
 import { GraphView } from "../canvas/GraphView";
 import { GraphController } from "../canvas/GraphController";
-import { PhysicsBasedLayoutManager } from "../canvas/LayoutManager";
+import { PhysicsBasedLayoutManager, FruchtermanReingoldLayoutManager} from "../canvas/LayoutManager";
 
 export default function GraphCanvas({ width = 800, height = 600 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -16,7 +16,8 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
     const model = new GraphModel();
     const view = new GraphView(ctx, model);
     const controller = new GraphController(model);
-    const layoutManager = new PhysicsBasedLayoutManager();
+    // const layoutManager = new PhysicsBasedLayoutManager();
+    const layoutManager = new FruchtermanReingoldLayoutManager();
 
     const handleMouse = (e: MouseEvent) => {
       controller.updateMouseState(e);

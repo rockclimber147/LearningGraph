@@ -76,4 +76,94 @@ export class PhysicsBasedLayoutManager implements LayoutManager {
         } 
     }
 }
+
+export class FruchtermanReingoldLayoutManager implements LayoutManager {
+    private temperature = 400;       // how far a node is allowed to move per step
+    private cooling = 0.95;          // decay per iteration
+    private idealDist = 120;         // ideal spacing between nodes
+
+    layoutAnimationStep(nodes: GraphNode[], connections: NodeConnection[]): void {
+        if (nodes.length === 0) return;
+
+        // Initialize force map
+        const forces = new Map<GraphNode, Coordinate>();
+        for (const n of nodes) {
+            forces.set(n, new Coordinate(0, 0));
+        }
+
+        const k = this.idealDist;
+
+        function repulsive(dist: number) {
+            return (k * k) / dist;
+        }
+
+        function attractive(dist: number) {
+            return (dist * dist) / k;
+        }
+
+        // -----------------------------------------
+        // REPULSIVE FORCES (all pairs)
+        // -----------------------------------------
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const a = nodes[i];
+                const b = nodes[j];
+
+                const diff = b.position.clone().sub(a.position);
+                let dist = diff.length();
+
+                if (dist === 0) {
+                    diff.x = (Math.random() - 0.5) * 0.001;
+                    diff.y = (Math.random() - 0.5) * 0.001;
+                    dist = diff.length();
+                }
+
+                const dir = diff.clone().scale(1 / dist);
+                const f = repulsive(dist);
+
+                const forceVec = dir.clone().scale(f);
+
+                forces.get(a)!.sub(forceVec);
+                forces.get(b)!.add(forceVec);
+            }
+        }
+
+        // -----------------------------------------
+        // ATTRACTIVE FORCES (edges)
+        // -----------------------------------------
+        for (const edge of connections) {
+            const a = edge.startNode;
+            const b = edge.endNode;
+
+            const diff = b.position.clone().sub(a.position);
+            const dist = diff.length() || 0.0001;
+
+            const dir = diff.clone().scale(1 / dist);
+            const f = attractive(dist);
+
+            const forceVec = dir.clone().scale(f);
+
+            forces.get(a)!.add(forceVec);
+            forces.get(b)!.sub(forceVec);
+        }
+
+        // -----------------------------------------
+        // APPLY FORCES — capped by temperature
+        // -----------------------------------------
+        for (const node of nodes) {
+            const force = forces.get(node)!;
+
+            const m = force.length();
+            const capped = Math.min(m, this.temperature);
+
+            const movement = force.clone().scale(capped / (m || 0.0001));
+
+            node.position.add(movement);
+        }
+
+        // COOLING
+        this.temperature *= this.cooling;
+        if (this.temperature < 0.1) this.temperature = 0.1;
+    }
+}
     

@@ -41,11 +41,9 @@ export class GraphModel {
     const nodeA = this.getNode(a);
     const nodeB = this.getNode(b);
     if (!nodeA || !nodeB) {
-      console.log("No nodes")
       return;
     };
-
-    // bidirectional adjacency
+    
     nodeA.addNeighbor(b);
     nodeB.addNeighbor(a);
 
