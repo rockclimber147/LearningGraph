@@ -4,12 +4,14 @@ import { type Drawable } from "./GraphView";
 
 export class GraphModel {
   nodes: GraphNode[] = [];
+  draggedNode: GraphNode | null;
   lines: NodeConnection[] = [];
   layers: Drawable[][] = [];
   private _globalOffset = new Coordinate(); // combine x/y offsets
   _zoomLevel: number = 1;
 
   constructor() {
+    this.draggedNode = null;
     this.layers[0] = this.lines;
     this.layers[1] = this.nodes;
   }
@@ -89,11 +91,19 @@ export class GraphModel {
 
   updateHover(mousePosition: Coordinate) {
     this.nodes.forEach(node => {
-      if (node.position.clone().sub(mousePosition).length() < node.radius) {
+      if (node.position.clone().sub(this.screenToModelCoords(mousePosition)).length() < node.radius) {
         node.isHovered = true;
       } else {
         node.isHovered = false;
       }
+    })
+  }
+
+  setClicked(mousePosition: Coordinate) {
+    this.nodes.forEach(node => {
+      if (node.position.clone().sub(this.screenToModelCoords(mousePosition)).length() < node.radius) {
+        this.draggedNode = node;
+      } 
     })
   }
 

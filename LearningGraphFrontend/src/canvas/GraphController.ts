@@ -66,9 +66,14 @@ export class GraphController {
       const toAdd = new GraphNode(
           NodeIdGenerator.nextId(),
           nodePosition,
-          "Node"
+          `Node ${NodeIdGenerator.getCurrId()}`
         )
-      this.model.addNode(toAdd);
+      this.model.addNode(toAdd)
+      this.model.setClicked(m.lastCoords)
+    } if (m.leftDown && this.model.draggedNode) {
+      const lastModelCoords = this.model.screenToModelCoords(m.lastCoords)
+      this.model.draggedNode.position.x = lastModelCoords.x;
+      this.model.draggedNode.position.y = lastModelCoords.y;
     }
 
     // ---- Middle drag to pan ----

@@ -51,10 +51,14 @@ export class GraphNode implements Drawable {
 }
 
 export class NodeIdGenerator {
-  private static currId = 1;
+  private static currId = 0;
 
   static nextId(): number {
     return this.currId++;
+  }
+
+  static getCurrId(): number {
+    return this.currId;
   }
 
   static reset(startAt = 1) {
