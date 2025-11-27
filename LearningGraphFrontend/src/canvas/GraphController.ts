@@ -10,13 +10,16 @@ export class GraphController {
     this.mouseState = new MouseState();
   }
 
-  updateMouseState(e: MouseEvent) {
+  updateMousePosition(e: MouseEvent) {
     // Update mouse coordinates
     const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     this.mouseState.updatePosition(x, y);
+  }
 
+  updateMouseState(e: MouseEvent) {
+    this.updateMousePosition(e);
     // Update button state
     // MouseEvent.buttons is a bitmask: https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
     // Left = 1, Right = 2, Middle = 4
@@ -24,42 +27,49 @@ export class GraphController {
     this.mouseState.setButtonDown(MouseButtons.Right, !!(e.buttons & 2));
     this.mouseState.setButtonDown(MouseButtons.Middle,!!(e.buttons & 4));
   }
-
-  handleLeftClick(x: number, y: number) {
-    const m = this.model;
-    m.addNode({
-      id: Date.now().toString(),
-      position: new Coordinate(
-        x - m.globalOffset.x,
-        y - m.globalOffset.y,
-      ),
-      label: "Node",
-    });
-  }
-
-  pan(dx: number, dy: number) {
-    this.model.adjustOffset(dx, dy);
-  }
   
-  handleWheel(deltaY: number) {
+  handleWheel(e: WheelEvent) {
+    this.updateMousePosition(e)
+    const zoomFactor = 1.1; // how much to zoom per wheel notch
+    const model = this.model;
+    const deltaY = e.deltaY;
+    const mousePos = this.mouseState.lastCoords
+
+    const oldZoom = model.zoomLevel;
+    let newZoom = oldZoom;
+
     if (deltaY < 0) {
-      console.log("Zoom in");
+      // zoom in
+      newZoom *= zoomFactor;
     } else {
-      console.log("Zoom out");
+      // zoom out
+      newZoom /= zoomFactor;
     }
+
+    // clamp zoom to reasonable range
+    newZoom = Math.max(0.1, Math.min(10, newZoom));
+
+    // Compute new offset so that the point under mouse stays the same
+    // formula: newOffset = mousePos - ((mousePos - oldOffset) * newZoom / oldZoom)
+    const offset = model.globalOffset;
+    const dx = mousePos.x - ((mousePos.x - offset.x) * newZoom) / oldZoom;
+    const dy = mousePos.y - ((mousePos.y - offset.y) * newZoom) / oldZoom;
+
+    model.zoomLevel = newZoom;
+    model.globalOffset = new Coordinate(dx, dy);
   }
 
-    handleMouseInteractions(view: { render: () => void }) {
+  handleMouseInteractions(view: { render: () => void }) {
     const m = this.mouseState;
 
     // ---- Left click adds a node ----
     if (m.leftDown && !m.wasLeftDown) {
-      const clickCoords = m.lastCoords.clone();
-      const nodePosition = clickCoords.sub(this.model.globalOffset)
+      const nodePosition = this.model.screenToModelCoords(m.lastCoords);
       this.model.addNode({
         id: Date.now().toString(),
         position: nodePosition,
         label: "Node",
+        radius: 25
       });
     }
 

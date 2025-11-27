@@ -23,7 +23,7 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      controller.handleWheel(e.deltaY);
+      controller.handleWheel(e);
       view.render();
     };
 
