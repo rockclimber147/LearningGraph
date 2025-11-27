@@ -16,7 +16,7 @@ export function AuthProvider({ children }: { children: ReactNode }) { // React c
   const login = (user: string, pass: string) => {
     if (!pass) return false;
     setUsername(user);
-    return false;
+    return true;
   };
 
   const logout = () => setUsername(null);
