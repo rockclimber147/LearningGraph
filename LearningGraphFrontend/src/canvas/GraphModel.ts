@@ -44,42 +44,16 @@ export class Coordinate {
   add(coord: Coordinate) {
     this.x += coord.x;
     this.y += coord.y;
+    return this;
   }
 
   sub(coord: Coordinate) {
     this.x -= coord.x;
     this.y -= coord.y;
+    return this;
   }
 
   clone() {
     return new Coordinate(this.x, this.y);
-  }
-}
-
-export class MouseState {
-  leftDown = false;
-  rightDown = false;
-  middleDown = false;
-  lastX = 0;
-  lastY = 0;
-  wheelDelta = 0;
-
-  updatePosition(x: number, y: number) {
-    this.lastX = x;
-    this.lastY = y;
-  }
-
-  setButtonDown(button: "left" | "right" | "middle", down: boolean) {
-    if (button === "left") this.leftDown = down;
-    if (button === "right") this.rightDown = down;
-    if (button === "middle") this.middleDown = down;
-  }
-
-  setWheel(deltaY: number) {
-    this.wheelDelta = deltaY;
-  }
-
-  isDragging() {
-    return this.middleDown || this.leftDown || this.rightDown;
   }
 }
