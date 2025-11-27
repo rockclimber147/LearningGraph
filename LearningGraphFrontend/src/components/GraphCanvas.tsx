@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { GraphModel } from "../canvas/GraphModel";
 import { GraphView } from "../canvas/GraphView";
 import { GraphController } from "../canvas/GraphController";
@@ -6,6 +6,12 @@ import { PhysicsBasedLayoutManager, FruchtermanReingoldLayoutManager} from "../c
 
 export default function GraphCanvas({ width = 800, height = 600 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [animateEnabled, setAnimateEnabled] = useState(true);
+  const animateRef = useRef(true);
+  
+  useEffect(() => {
+    animateRef.current = animateEnabled;
+  }, [animateEnabled]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,16 +47,19 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
     canvas.addEventListener("wheel", handleWheel);
     canvas.addEventListener("contextmenu", handleContextMenu);
 
-  const animate = () => {
-    layoutManager.layoutAnimationStep(model.nodes, model.nodeConnections)
-    controller.handleMouseInteractions(view);
-    view.render();
+    const animate = () => {
+      if (animateRef.current) {
+        layoutManager.layoutAnimationStep(model.nodes, model.nodeConnections);
+      }
+
+      // Always allow dragging / zoom to update
+      controller.handleMouseInteractions(view);
+
+      view.render();
+      requestAnimationFrame(animate);
+    };
+
     requestAnimationFrame(animate);
-  };
-
-  animate();
-
-    view.render();
 
     return () => {
       canvas.removeEventListener("mousemove", handleMouse);
@@ -63,11 +72,21 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={width}
-      height={height}
-      style={{ border: "1px solid black", marginTop: 20 }}
-    />
+    <div>
+      {/* Toggle Button */}
+      <button
+        onClick={() => setAnimateEnabled(a => !a)}
+        style={{ marginBottom: 10 }}
+      >
+        {animateEnabled ? "Stop Animation" : "Start Animation"}
+      </button>
+
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        style={{ border: "1px solid black" }}
+      />
+    </div>
   );
 }
