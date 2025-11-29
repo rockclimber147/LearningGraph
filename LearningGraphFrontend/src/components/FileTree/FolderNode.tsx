@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { type FileNode } from "./FileTree";
-import FileNodeComponent from "./FileNode"
+import FileNodeComponent from "./FileNode";
+import AddNodeRow from "./AddNodeRow";
 
 type FolderNodeProps = {
   node: FileNode;
@@ -17,9 +18,7 @@ export default function FolderNodeComponent({
   onDelete,
   onAdd,
 }: FolderNodeProps) {
-  const [addingTo, setAddingTo] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newType, setNewType] = useState<"file" | "folder">("file");
+  const [adding, setAdding] = useState(false);
 
   const fullPath = node.path || (parentPath ? `${parentPath}/${node.name}` : node.name);
 
@@ -30,9 +29,9 @@ export default function FolderNodeComponent({
 
         <button
           className="font-bold border-none bg-none cursor-pointer"
-          onClick={() => setAddingTo(!addingTo)}
+          onClick={() => setAdding(!adding)}
         >
-          {addingTo ? "-" : "+"}
+          {adding ? "-" : "+"}
         </button>
 
         <button
@@ -43,35 +42,7 @@ export default function FolderNodeComponent({
         </button>
       </div>
 
-      {addingTo && (
-        <div className="ml-4 mt-1 flex gap-1">
-          <input
-            className="px-1"
-            type="text"
-            placeholder={`New ${newType}`}
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-          />
-          <select
-            className="px-1"
-            value={newType}
-            onChange={(e) => setNewType(e.target.value as "file" | "folder")}
-          >
-            <option value="file">File</option>
-            <option value="folder">Folder</option>
-          </select>
-          <button
-            className="bg-[#202020] px-1"
-            onClick={() => {
-              onAdd(fullPath, newName, newType);
-              setNewName("");
-              setAddingTo(false);
-            }}
-          >
-            Add
-          </button>
-        </div>
-      )}
+      {adding && <AddNodeRow parentPath={fullPath} onAdd={onAdd} />}
 
       <ul className="ml-4">
         {node.children?.map((child) =>
