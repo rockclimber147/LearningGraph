@@ -34,7 +34,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
   };
 
   useEffect(() => {
-    let isMounted = true; // optional flag to avoid setting state if unmounted
+    let isMounted = true;
 
     const fetchTree = async () => {
       try {

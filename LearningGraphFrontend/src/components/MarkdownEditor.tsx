@@ -45,7 +45,7 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
 
   // Save file content
   const handleSave = useCallback(async () => {
-    if (!filePath) return;
+    if (!filePath || !contentRef.current) return;
     try {
       await apiService.save(filePath, contentRef.current);
       showToast("Saved successfully!", "success");
