@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useCreateBlockNote, useEditorChange } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/mantine/style.css";
 
 type MarkdownEditorProps = {
   filePath: string;

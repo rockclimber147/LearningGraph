@@ -71,13 +71,6 @@ export default function FolderNodeComponent({
         >
           {adding ? "-" : "+"}
         </button>
-
-        <button
-          onClick={() => onDelete(fullPath, "folder")}
-          className="text-red-500 bg-none border-none cursor-pointer"
-        >
-          🗑
-        </button>
       </div>
 
       {/* Inline AddRow */}

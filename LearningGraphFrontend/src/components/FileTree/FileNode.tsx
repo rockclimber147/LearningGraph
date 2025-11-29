@@ -45,13 +45,6 @@ export default function FileNodeComponent({
         {name}
       </button>
 
-      <button
-        onClick={() => onDelete(fullPath, "file")}
-        className="text-red-500 bg-none border-none cursor-pointer"
-      >
-        🗑
-      </button>
-
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}
