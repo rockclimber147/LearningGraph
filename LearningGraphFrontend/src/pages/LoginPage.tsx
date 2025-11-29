@@ -20,14 +20,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Login</h2>
+    <div className="p-5">
+      <h2 className="mb-4 text-xl font-semibold">Login</h2>
 
       <input
         placeholder="Username"
         value={user}
         onChange={(e) => setUser(e.target.value)}
-        style={{ display: "block", marginBottom: 10 }}
+        className="block w-full mb-2 px-3 py-2 border border-gray-300 rounded"
       />
 
       <input
@@ -35,12 +35,18 @@ export default function LoginPage() {
         placeholder="Password"
         value={pass}
         onChange={(e) => setPass(e.target.value)}
-        style={{ display: "block", marginBottom: 10 }}
+        className="block w-full mb-2 px-3 py-2 border border-gray-300 rounded"
       />
 
-      <button onClick={handleLogin}>Login</button>
+      <button
+        onClick={handleLogin}
+        className="px-4 py-2 bg-[#202020] text-white rounded mb-2"
+      >
+        Login
+      </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>
   );
+
 }

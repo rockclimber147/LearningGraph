@@ -53,15 +53,21 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
     }
   };
 
-  return (
+    return (
     <div>
-    <h2>Editing: {filePath}</h2>
-      <div style={{ border: "1px solid #ccc", borderRadius: 8, padding: 10, minHeight: 400 }}>
+        <h2 className="mb-2 text-lg font-semibold">Editing: {filePath}</h2>
+
+        <div className="border border-gray-300 rounded-lg p-3 min-h-[400px] mb-2">
         <BlockNoteView editor={editor} />
-      </div>
-      <button onClick={handleSave} style={{ marginTop: 10 }}>
+        </div>
+
+        <button
+        onClick={handleSave}
+        className="mt-2 px-3 py-1 bg-[#202020] text-white rounded"
+        >
         Save to Server
-      </button>
+        </button>
     </div>
-  );
+    );
+
 }

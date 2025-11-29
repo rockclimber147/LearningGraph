@@ -80,75 +80,87 @@ const renderNode = (node: FileNode, parentPath = "") => {
   if (node.type === "file" && !node.name.endsWith(".md")) return null;
 
   // FILE
-  if (node.type === "file") {
-    return (
-      <span key={fullPath} className="filetree-node">
-        <button onClick={() => onSelectFile(fullPath)}>
-          {node.name}
-        </button>
-
-        <button
-          onClick={() => handleDelete(fullPath, "file")}
-          className="filetree-delete"
-        >
-          🗑
-        </button>
-      </span>
-    );
-  }
-
-  // FOLDER
+if (node.type === "file") {
   return (
-    <span key={fullPath}>
-      <div className="filetree-node">
-        <strong>{node.name}</strong>
+    <span key={fullPath} className="flex items-center gap-1">
+      <button
+        className="bg-[#202020] px-1 mb-1"
+        onClick={() => onSelectFile(fullPath)}
+      >
+        {node.name}
+      </button>
 
-        <button
-          onClick={() =>
-            setAddingTo(addingTo === fullPath ? null : fullPath)
-          }
-        >
-          {addingTo === fullPath ? "-" : "+"}
-        </button>
-
-        <button
-          onClick={() => handleDelete(fullPath, "folder")}
-          className="filetree-delete"
-        >
-          🗑
-        </button>
-      </div>
-
-      {/* Inline add input */}
-      {addingTo === fullPath && (
-        <div className="add-row">
-          <input
-            type="text"
-            placeholder={`New ${newType}`}
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-          />
-
-          <select
-            value={newType}
-            onChange={(e) =>
-              setNewType(e.target.value as "file" | "folder")
-            }
-          >
-            <option value="file">File</option>
-            <option value="folder">Folder</option>
-          </select>
-
-          <button onClick={() => handleAddSubmit(fullPath)}>Add</button>
-        </div>
-      )}
-
-      {/* Children */}
-      <ul className="children-list">
-        {node.children?.map((child) => renderNode(child, fullPath))}
-      </ul>
+      <button
+        onClick={() => handleDelete(fullPath, "file")}
+        className="text-red-500 bg-none border-none cursor-pointer"
+      >
+        🗑
+      </button>
     </span>
   );
+}
+
+// FOLDER
+return (
+  <span key={fullPath}>
+    <div className="flex items-center gap-1">
+      <strong>{node.name}</strong>
+
+      <button
+        className="font-bold border-none bg-none cursor-pointer"
+        onClick={() =>
+          setAddingTo(addingTo === fullPath ? null : fullPath)
+        }
+      >
+        {addingTo === fullPath ? "-" : "+"}
+      </button>
+
+      <button
+        onClick={() => handleDelete(fullPath, "folder")}
+        className="text-red-500 bg-none border-none cursor-pointer"
+      >
+        🗑
+      </button>
+    </div>
+
+    {/* Inline add input */}
+    {addingTo === fullPath && (
+      <div className="ml-4 mt-1 flex gap-1">
+        <input
+          className="px-1"
+          type="text"
+          placeholder={`New ${newType}`}
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+        />
+
+        <select
+          className="px-1"
+          value={newType}
+          onChange={(e) =>
+            setNewType(e.target.value as "file" | "folder")
+          }
+        >
+          <option value="file">File</option>
+          <option value="folder">Folder</option>
+        </select>
+
+        <button
+          className="bg-[#202020] px-1"
+          onClick={() => handleAddSubmit(fullPath)}
+        >
+          Add
+        </button>
+      </div>
+    )}
+
+    {/* Children */}
+    <ul className="ml-4">
+      {node.children?.map((child) => renderNode(child, fullPath))}
+    </ul>
+  </span>
+);
+
 };
 
 

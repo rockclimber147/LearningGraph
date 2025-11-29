@@ -76,7 +76,7 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
       {/* Toggle Button */}
       <button
         onClick={() => setAnimateEnabled(a => !a)}
-        style={{ marginBottom: 10 }}
+        className="mb-2 px-3 py-1 bg-[#202020] text-white rounded"
       >
         {animateEnabled ? "Stop Animation" : "Start Animation"}
       </button>
@@ -85,7 +85,7 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
         ref={canvasRef}
         width={width}
         height={height}
-        style={{ border: "1px solid black" }}
+        className="border border-black"
       />
     </div>
   );

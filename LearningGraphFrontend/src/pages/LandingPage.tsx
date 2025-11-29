@@ -7,21 +7,26 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Welcome, {username}!</h1>
+    <div className="p-5">
+      <h1 className="mb-4 text-2xl font-semibold">Welcome, {username}!</h1>
 
-      <div style={{ margin: "20px 0" }}>
+      <div className="my-5">
         <GraphCanvas width={800} height={600} />
       </div>
 
       <button
         onClick={() => navigate("/markdown")}
-        style={{ display: "block", marginBottom: 20 }}
+        className="block mb-5 px-4 py-2 bg-[#202020] text-white rounded"
       >
         Open Markdown Editor
       </button>
 
-      <button onClick={logout}>Logout</button>
+      <button
+        onClick={logout}
+        className="px-4 py-2 bg-[#202020] text-white rounded"
+      >
+        Logout
+      </button>
     </div>
   );
 }

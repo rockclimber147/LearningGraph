@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite' // This imports Vite’s config wrapper so TypeScript gets correct types and autocomplete
 import react from '@vitejs/plugin-react' // Vite doesn't understand JSX or React by default
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,5 +10,6 @@ export default defineConfig({
         plugins: [['babel-plugin-react-compiler']], // This enables the new React Compiler
       },
     }),
+    tailwindcss()
   ],
 })
