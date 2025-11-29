@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import LoginPage from "./pages/LoginPage";
 import LandingPage from "./pages/LandingPage";
 import { useAuth } from "./hooks/auth";
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/mantine/style.css";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { username } = useAuth();
