@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-* {
+#root, body, .app {
   box-sizing: border-box;
   background-color: #151515;
   color: #f2f2f2;
