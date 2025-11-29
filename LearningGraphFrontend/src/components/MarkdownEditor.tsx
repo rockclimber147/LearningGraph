@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useCreateBlockNote, useEditorChange } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
+import Toast  from "./ToastComponent"
 import { FilesApiService } from "../services/filesAPIService";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
@@ -12,6 +13,10 @@ type MarkdownEditorProps = {
 export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
   const editor = useCreateBlockNote();
   const [markdownContent, setMarkdownContent] = useState("");
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
+  };
   const apiService = useMemo(() => new FilesApiService(), []);
 
   // Track editor changes
@@ -29,7 +34,7 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
       editor.replaceBlocks(editor.document, blocks);
     } catch (err) {
       console.error(err);
-      alert("Error loading file: " + err);
+      showToast("Error loading file: " + err, "error");
     }
   }, [editor, apiService]);
 
@@ -43,16 +48,20 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
     if (!filePath) return;
     try {
       await apiService.save(filePath, contentRef.current);
-      console.log(`Saved ${filePath} successfully!`);
+      showToast("Saved successfully!", "success");
     } catch (err) {
-      alert("Error saving file: " + err);
+      showToast("Error saving file: " + err, "error");
     }
   }, [filePath, apiService]);
 
   // Effect just triggers load when filePath changes
-  useEffect(() => {
-    handleLoad(filePath);
-  }, [filePath, handleLoad]);
+    useEffect(() => {
+    if (!filePath) return;
+    const loadFile = async () => {
+        await handleLoad(filePath);
+    };
+    loadFile();
+    }, [filePath, handleLoad]);
 
   useEffect(() => {
     return () => {
@@ -62,6 +71,7 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
 
   return (
     <div>
+        {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       <h2 className="mb-2 text-lg font-semibold">Editing: {filePath}</h2>
 
       <div className="border border-gray-300 rounded-lg p-3 min-h-[400px] mb-2">

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import FileNodeComponent from "./FileNode";
 import FolderNodeComponent from "./FolderNode";
+import Toast from "../ToastComponent";
 import { FilesApiService } from "../../services/filesAPIService";
 
 export type FileNode = {
@@ -18,6 +19,10 @@ type FileTreeProps = {
 export default function FileTree({ onSelectFile }: FileTreeProps) {
   const [nodes, setNodes] = useState<FileNode[] | null>(null);
   const apiService = new FilesApiService();
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
+  };
 
   const fetchTreeAsync = async () => {
     try {
@@ -52,6 +57,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     try {
       await apiService.add(parentPath, name, type);
       await fetchTreeAsync();
+      showToast("added successfully!", "success");
     } catch (err) {
       alert("Error adding file/folder: " + err);
     }
@@ -62,6 +68,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     try {
       await apiService.delete(fullPath, type);
       await fetchTreeAsync();
+      showToast("deleted successfully!", "success");
     } catch (err) {
       alert("Error deleting file/folder: " + err);
     }
@@ -71,6 +78,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     try {
       await apiService.rename(fullPath, newName);
       await fetchTreeAsync();
+      showToast("renamed successfully!", "success");
     } catch (err) {
       alert("Error renaming file/folder: " + err);
     }
@@ -80,6 +88,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
 
   return (
     <ul>
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       {nodes.map((node) =>
         node.type === "file" ? (
           <FileNodeComponent
