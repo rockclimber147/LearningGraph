@@ -72,83 +72,85 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
   }
 };
 
-  const renderNode = (node: FileNode, parentPath = "") => {
-    const fullPath = node.path || (parentPath ? `${parentPath}/${node.name}` : node.name);
+const renderNode = (node: FileNode, parentPath = "") => {
+  const fullPath =
+    node.path || (parentPath ? `${parentPath}/${node.name}` : node.name);
 
-    // Skip non-markdown files
-    if (node.type === "file" && !node.name.endsWith(".md")) return null;
+  // Skip non-markdown files
+  if (node.type === "file" && !node.name.endsWith(".md")) return null;
 
-    // For files
-    if (node.type === "file") {
+  // FILE
+  if (node.type === "file") {
     return (
-        <span key={fullPath} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <button
-            onClick={() => onSelectFile(fullPath)}
-            style={{
-            background: "none",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-            textAlign: "left",
-            color: "#0077ff",
-            }}
-        >
-            {node.name}
+      <span key={fullPath} className="filetree-node">
+        <button onClick={() => onSelectFile(fullPath)}>
+          {node.name}
         </button>
+
         <button
-            onClick={() => handleDelete(fullPath, "file")}
-            style={{ color: "red", cursor: "pointer", border: "none", background: "none" }}
+          onClick={() => handleDelete(fullPath, "file")}
+          className="filetree-delete"
         >
-            🗑
+          🗑
         </button>
-        </span>
+      </span>
     );
-    }
+  }
 
-    // For folders (inside renderNode)
-    return (
+  // FOLDER
+  return (
     <span key={fullPath}>
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+      <div className="filetree-node">
         <strong>{node.name}</strong>
-        <button
-            style={{ cursor: "pointer", border: "none", background: "none", fontWeight: "bold" }}
-            onClick={() => setAddingTo(addingTo === fullPath ? null : fullPath)}
-        >
-            {addingTo === fullPath ? "-" : "+"}
-        </button>
-        <button
-            onClick={() => handleDelete(fullPath, "folder")}
-            style={{ color: "red", cursor: "pointer", border: "none", background: "none" }}
-        >
-            🗑
-        </button>
-        </div>
 
-        {/* Inline add input */}
-        {addingTo === fullPath && (
-        <div style={{ marginLeft: 15, marginTop: 2, display: "flex", gap: 5 }}>
-            <input
+        <button
+          onClick={() =>
+            setAddingTo(addingTo === fullPath ? null : fullPath)
+          }
+        >
+          {addingTo === fullPath ? "-" : "+"}
+        </button>
+
+        <button
+          onClick={() => handleDelete(fullPath, "folder")}
+          className="filetree-delete"
+        >
+          🗑
+        </button>
+      </div>
+
+      {/* Inline add input */}
+      {addingTo === fullPath && (
+        <div className="add-row">
+          <input
             type="text"
             placeholder={`New ${newType}`}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            />
-            <select value={newType} onChange={(e) => setNewType(e.target.value as "file" | "folder")}>
+          />
+
+          <select
+            value={newType}
+            onChange={(e) =>
+              setNewType(e.target.value as "file" | "folder")
+            }
+          >
             <option value="file">File</option>
             <option value="folder">Folder</option>
-            </select>
-            <button onClick={() => handleAddSubmit(fullPath)}>Add</button>
+          </select>
+
+          <button onClick={() => handleAddSubmit(fullPath)}>Add</button>
         </div>
-        )}
+      )}
 
-        {/* Render children */}
-        <ul style={{ marginLeft: 15 }}>
+      {/* Children */}
+      <ul className="children-list">
         {node.children?.map((child) => renderNode(child, fullPath))}
-        </ul>
+      </ul>
     </span>
-    );
+  );
+};
 
-  };
 
   if (!nodes) return <p>Loading files...</p>;
   return <ul>{nodes.map((node) => renderNode(node))}</ul>;

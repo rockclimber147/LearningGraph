@@ -2,10 +2,39 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  color: #f2f2f2;
 }
 
 body {
   padding: 40px;
   background-color: #151515;
-  font-family: "Franklin Gothic Medium", Arial
+  font-family: "Franklin Gothic Medium", Arial;
+}
+
+button {
+  background-color: #202020;
+  padding: 3px;
+  margin-bottom: 2px;
+}
+
+.filetree-node {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.filetree-delete {
+  color: red;
+  background: none;
+}
+
+.add-row {
+  margin-left: 15px;
+  margin-top: 2px;
+  display: flex;
+  gap: 5px;
+}
+
+.children-list {
+  margin-left: 15px;
 }
