@@ -68,9 +68,77 @@ input {
   border-radius: 6px;
 }
 
-
+/* Centered button container */
 .centered-button {
   display: flex;
   justify-content: center; /* horizontal center */
   margin-top: 20px;
+}
+
+/* ======================= */
+/* BlockNote Markdown Editor Styling */
+/* ======================= */
+
+.blocknote-root {
+  min-height: 400px; /* Ensure editor has space */
+  max-height: 80vh;  /* Prevent overflowing viewport */
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.blocknote-root .blocknote-block {
+  margin-bottom: 12px;
+}
+
+.blocknote-root pre {
+  background-color: #f4f4f4;
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+}
+
+.blocknote-root table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.blocknote-root table th,
+.blocknote-root table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.blocknote-root table th {
+  background-color: #f0f0f0;
+}
+
+.blocknote-root h1,
+.blocknote-root h2,
+.blocknote-root h3,
+.blocknote-root h4,
+.blocknote-root h5,
+.blocknote-root h6 {
+  margin: 12px 0;
+  color: #333;
+}
+
+.blocknote-root ul,
+.blocknote-root ol {
+  margin: 8px 0 8px 20px;
+}
+
+.blocknote-root a {
+  color: #0077ff;
+  text-decoration: underline;
+}
+
+.blocknote-root a:hover {
+  color: #005fcc;
 }

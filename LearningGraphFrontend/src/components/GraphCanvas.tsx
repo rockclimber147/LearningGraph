@@ -22,8 +22,8 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
     const model = new GraphModel();
     const view = new GraphView(ctx, model);
     const controller = new GraphController(model);
-    // const layoutManager = new PhysicsBasedLayoutManager();
-    const layoutManager = new FruchtermanReingoldLayoutManager();
+    const layoutManager = new PhysicsBasedLayoutManager();
+    // const layoutManager = new FruchtermanReingoldLayoutManager();
 
     const handleMouse = (e: MouseEvent) => {
       controller.updateMouseState(e);
