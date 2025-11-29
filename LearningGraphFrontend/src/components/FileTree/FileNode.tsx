@@ -24,6 +24,7 @@ export default function FileNodeComponent({
 
   const handleRightClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
 
     setContextMenu({
       x: e.clientX,
