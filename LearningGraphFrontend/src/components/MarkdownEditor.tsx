@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useCreateBlockNote, useEditorChange } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 
-export default function MarkdownEditor() {
+type MarkdownEditorProps = {
+  filePath: string;
+};
+
+export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
   const editor = useCreateBlockNote();
   const [markdownContent, setMarkdownContent] = useState("");
 
@@ -10,52 +14,54 @@ export default function MarkdownEditor() {
   useEditorChange(async (editorInstance) => {
     const md = await editorInstance.blocksToMarkdownLossy(editorInstance.document);
     setMarkdownContent(md);
-    localStorage.setItem("myMarkdownNote", md);
   }, editor);
 
-  // Load saved content
-    useEffect(() => {
-    const saved = localStorage.getItem("myMarkdownNote");
-    if (saved) {
-        const blocks = editor.tryParseMarkdownToBlocks(saved);
-        editor.replaceBlocks(editor.document, blocks);
-    }
-    }, [editor]);
-
-    const handleSave = async () => {
-        try {
-        await fetch("http://localhost:5001/save", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ filename: "note.md", content: markdownContent }),
-        });
-        alert("Saved successfully!");
-        } catch (err) {
-        alert("Error saving file: " + err);
-        }
-    };
-
+  // Load content when filePath changes
+  useEffect(() => {
+    if (!filePath) return;
     const handleLoad = async () => {
-        const res = await fetch("http://localhost:5001/load/note.md");
-        if (!res.ok) return alert("File not found");
+      try {
+        const res = await fetch(
+          `http://localhost:5001/load?filename=${encodeURIComponent(filePath)}`
+        );
+        if (!res.ok) throw new Error("File not found");
+
         const data = await res.json();
         const blocks = editor.tryParseMarkdownToBlocks(data.content);
         editor.replaceBlocks(editor.document, blocks);
+      } catch (err) {
+        console.error(err);
+        alert("Error loading file: " + err);
+      }
     };
+
+    handleLoad();
+  }, [filePath, editor]);
+
+  // Save current file
+  const handleSave = async () => {
+    if (!filePath) return;
+    try {
+      await fetch("http://localhost:5001/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: filePath, content: markdownContent }),
+      });
+      alert("Saved successfully!");
+    } catch (err) {
+      alert("Error saving file: " + err);
+    }
+  };
 
   return (
     <div>
+    <h2>Editing: {filePath}</h2>
       <div style={{ border: "1px solid #ccc", borderRadius: 8, padding: 10, minHeight: 400 }}>
         <BlockNoteView editor={editor} />
       </div>
-      <div style={{ marginTop: 10 }}>
-    <button onClick={handleSave} style={{ marginRight: 10 }}>
+      <button onClick={handleSave} style={{ marginTop: 10 }}>
         Save to Server
-    </button>
-    <button onClick={handleLoad}>
-        Load from Server
-    </button>
-    </div>
+      </button>
     </div>
   );
 }

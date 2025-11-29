@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { GraphModel } from "../canvas/GraphModel";
 import { GraphView } from "../canvas/GraphView";
 import { GraphController } from "../canvas/GraphController";
-import { PhysicsBasedLayoutManager, FruchtermanReingoldLayoutManager} from "../canvas/LayoutManager";
+import { PhysicsBasedLayoutManager } from "../canvas/LayoutManager";
 
 export default function GraphCanvas({ width = 800, height = 600 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
