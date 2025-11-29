@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+
 import FileNodeComponent from "./FileNode";
 import FolderNodeComponent from "./FolderNode";
+import { FilesApiService } from "../../services/filesAPIService";
 
 export type FileNode = {
   name: string;
@@ -15,11 +17,11 @@ type FileTreeProps = {
 
 export default function FileTree({ onSelectFile }: FileTreeProps) {
   const [nodes, setNodes] = useState<FileNode[] | null>(null);
+  const apiService = new FilesApiService();
 
   const fetchTreeAsync = async () => {
     try {
-      const res = await fetch("http://localhost:5001/tree");
-      const data: FileNode[] = await res.json();
+      const data = await apiService.fetchTree();
       setNodes(data);
     } catch (err) {
       console.error(err);
@@ -48,11 +50,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
 
   const handleAdd = async (parentPath: string, name: string, type: "file" | "folder") => {
     try {
-      await fetch("http://localhost:5001/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ parentPath, name, type }),
-      });
+      await apiService.add(parentPath, name, type);
       await fetchTreeAsync();
     } catch (err) {
       alert("Error adding file/folder: " + err);
@@ -61,13 +59,8 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
 
   const handleDelete = async (fullPath: string, type: "file" | "folder") => {
     if (!window.confirm(`Are you sure you want to delete ${fullPath}?`)) return;
-
     try {
-      await fetch("http://localhost:5001/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path: fullPath, type }),
-      });
+      await apiService.delete(fullPath, type);
       await fetchTreeAsync();
     } catch (err) {
       alert("Error deleting file/folder: " + err);
@@ -76,11 +69,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
 
   const handleRename = async (fullPath: string, newName: string) => {
     try {
-      await fetch("http://localhost:5001/rename", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path: fullPath, newName }),
-      });
+      await apiService.rename(fullPath, newName);
       await fetchTreeAsync();
     } catch (err) {
       alert("Error renaming file/folder: " + err);
