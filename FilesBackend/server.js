@@ -86,6 +86,58 @@ app.get("/tree", (req, res) => {
   }
 });
 
+app.post("/add", (req, res) => {
+  const { parentPath, name, type } = req.body;
+
+  if (!name || !type)
+    return res.status(400).send({ error: "Missing name or type" });
+
+  // Compute full path inside DOCS_DIR
+  const targetPath = path.join(DOCS_DIR, parentPath || "", name);
+  const resolved = path.resolve(targetPath);
+
+  // Ensure path is inside DOCS_DIR
+  if (!resolved.startsWith(DOCS_DIR))
+    return res.status(400).send({ error: "Invalid path" });
+
+  try {
+    if (type === "folder") {
+      fs.mkdirSync(resolved, { recursive: true });
+      return res.send({ message: "Folder created successfully" });
+    } else if (type === "file") {
+      // For files, ensure .md extension
+      const filePath = resolved.endsWith(".md") ? resolved : resolved + ".md";
+      const dir = path.dirname(filePath);
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(filePath, "", "utf8"); // empty file
+      return res.send({ message: "File created successfully" });
+    } else {
+      return res.status(400).send({ error: "Type must be 'file' or 'folder'" });
+    }
+  } catch (err) {
+    return res.status(500).send({ error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`FilesBackend server running at http://localhost:${PORT}`);
+});
+
+app.post("/delete", (req, res) => {
+  const { path: targetPath, type } = req.body;
+  if (!targetPath || !type) return res.status(400).send({ error: "Missing path or type" });
+
+  const resolved = path.resolve(DOCS_DIR, targetPath);
+  if (!resolved.startsWith(DOCS_DIR)) return res.status(400).send({ error: "Invalid path" });
+
+  try {
+    if (type === "file") {
+      fs.unlinkSync(resolved);
+    } else if (type === "folder") {
+      fs.rmSync(resolved, { recursive: true, force: true });
+    }
+    res.send({ message: `${type} deleted successfully` });
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
 });
