@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useCreateBlockNote, useEditorChange } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import { FilesApiService } from "../services/filesAPIService";
@@ -16,7 +16,7 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
 
   // Track editor changes
   useEditorChange(async (editorInstance) => {
-    const md = await editorInstance.blocksToMarkdownLossy(editorInstance.document);
+    const md = editorInstance.blocksToMarkdownLossy(editorInstance.document);
     setMarkdownContent(md);
   }, editor);
 
@@ -33,21 +33,32 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
     }
   }, [editor, apiService]);
 
+  const contentRef = useRef(markdownContent);
+    useEffect(() => {
+    contentRef.current = markdownContent;
+  }, [markdownContent]);
+
   // Save file content
   const handleSave = useCallback(async () => {
     if (!filePath) return;
     try {
-      await apiService.save(filePath, markdownContent);
-      alert("Saved successfully!");
+      await apiService.save(filePath, contentRef.current);
+      console.log(`Saved ${filePath} successfully!`);
     } catch (err) {
       alert("Error saving file: " + err);
     }
-  }, [filePath, markdownContent, apiService]);
+  }, [filePath, apiService]);
 
   // Effect just triggers load when filePath changes
   useEffect(() => {
     handleLoad(filePath);
   }, [filePath, handleLoad]);
+
+  useEffect(() => {
+    return () => {
+        handleSave();
+    };
+    }, [handleSave]);
 
   return (
     <div>
