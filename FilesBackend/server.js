@@ -141,3 +141,16 @@ app.post("/delete", (req, res) => {
     res.status(500).send({ error: err.message });
   }
 });
+
+// Rename
+app.post("/rename", (req, res) => {
+  const { path: targetPath, newName } = req.body;
+  const resolved = path.resolve(DOCS_DIR, targetPath);
+  if (!resolved.startsWith(DOCS_DIR)) return res.status(400).send({ error: "Invalid path" });
+
+  const newPath = path.join(path.dirname(resolved), newName);
+  fs.rename(resolved, newPath, (err) => {
+    if (err) return res.status(500).send({ error: err.message });
+    res.send({ message: "Renamed successfully" });
+  });
+});
