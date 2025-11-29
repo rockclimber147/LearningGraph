@@ -8,7 +8,7 @@ import { useEffect } from "react"
 
 useEffect takes an effect callback function and a dependency array:
 
-```
+```text
 useEffect( () => {
   
 }, []);

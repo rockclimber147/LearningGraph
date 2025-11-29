@@ -2,10 +2,10 @@
 
 installation:
 
-```
+```text
 ```
 
 add to vite.config.ts:
 
-```
+```text
 ```
