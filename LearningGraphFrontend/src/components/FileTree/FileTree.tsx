@@ -60,7 +60,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
   };
 
   const handleDelete = async (fullPath: string, type: "file" | "folder") => {
-    if (!window.confirm(`Are you sure you want to delete this ${type}?`)) return;
+    if (!window.confirm(`Are you sure you want to delete ${fullPath}?`)) return;
 
     try {
       await fetch("http://localhost:5001/delete", {
@@ -71,6 +71,19 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
       await fetchTreeAsync();
     } catch (err) {
       alert("Error deleting file/folder: " + err);
+    }
+  };
+
+  const handleRename = async (fullPath: string, newName: string) => {
+    try {
+      await fetch("http://localhost:5001/rename", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: fullPath, newName }),
+      });
+      await fetchTreeAsync();
+    } catch (err) {
+      alert("Error renaming file/folder: " + err);
     }
   };
 
@@ -86,6 +99,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
             fullPath={node.path || node.name}
             onSelectFile={onSelectFile}
             onDelete={handleDelete}
+            onRename={handleRename}
           />
         ) : (
           <FolderNodeComponent
@@ -94,6 +108,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
             onSelectFile={onSelectFile}
             onDelete={handleDelete}
             onAdd={handleAdd}
+            onRename={handleRename}
           />
         )
       )}

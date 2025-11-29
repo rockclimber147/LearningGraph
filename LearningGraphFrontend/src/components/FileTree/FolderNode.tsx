@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { type FileNode } from "./FileTree";
 import FileNodeComponent from "./FileNode";
 import AddNodeRow from "./AddNodeRow";
@@ -10,7 +10,7 @@ type FolderNodeProps = {
   onSelectFile: (filePath: string) => void;
   onDelete: (fullPath: string, type: "file" | "folder") => void;
   onAdd: (parentPath: string, name: string, type: "file" | "folder") => void;
-  onRename?: (fullPath: string) => void;
+  onRename?: (fullPath: string, newName: string) => void;
 };
 
 export default function FolderNodeComponent({
@@ -23,7 +23,9 @@ export default function FolderNodeComponent({
 }: FolderNodeProps) {
   const [adding, setAdding] = useState(false);
   const [addingType, setAddingType] = useState<"file" | "folder">("file");
-
+  const [renaming, setRenaming] = useState(false);
+  const [newName, setNewName] = useState(node.name);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -54,16 +56,39 @@ export default function FolderNodeComponent({
             setAdding(true);
           },
         },
-        { label: "Rename", onClick: () => onRename?.(fullPath) },
+        { label: "Rename", onClick: () => { setRenaming(true); setContextMenu(null); } },
         { label: "Delete", onClick: () => onDelete(fullPath, "folder") },
       ],
     });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && newName.trim()) {
+      onRename?.(fullPath, newName.trim());
+      setRenaming(false);
+    }
+    if (e.key === "Escape") {
+      setRenaming(false);
+      setNewName(node.name); // reset to original
+    }
+  };
+
   return (
     <span className="relative" onContextMenu={handleRightClick}>
       <div className="flex items-center gap-1">
-        <strong>{node.name}</strong>
+        {renaming ? (
+            <input
+            ref={inputRef}
+            className="px-1 border rounded"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={() => setRenaming(false)} // optional: close on blur
+            />
+        ) : (
+            <strong>{node.name}</strong>
+        )}
+            
 
         <button
           className="font-bold border-none bg-none cursor-pointer"
