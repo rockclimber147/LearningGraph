@@ -26,9 +26,9 @@ function getFileTree(dir) {
   const stats = fs.statSync(dir);
   if (stats.isFile()) return { name: path.basename(dir), type: "file" };
 
-  const children = fs.readdirSync(dir).map((child) =>
-    getFileTree(path.join(dir, child))
-  );
+  const children = fs
+    .readdirSync(dir)
+    .map((child) => getFileTree(path.join(dir, child)));
   return { name: path.basename(dir), type: "folder", children };
 }
 
@@ -45,7 +45,9 @@ app.post("/save", (req, res) => {
     return res.status(400).send("Missing filename or content");
 
   if (!isValidMarkdownFile(filename))
-    return res.status(400).send("Invalid file. Only Markdown files in docs/ allowed.");
+    return res
+      .status(400)
+      .send("Invalid file. Only Markdown files in docs/ allowed.");
 
   const filePath = path.join(DOCS_DIR, filename);
   const dir = path.dirname(filePath);
@@ -60,14 +62,16 @@ app.post("/save", (req, res) => {
 // Load Markdown file
 app.get("/load", (req, res) => {
   const filename = req.query.filename;
-  console.log(filename)
+  console.log(filename);
   if (!filename) return res.status(400).send({ error: "Missing filename" });
 
   if (!isValidMarkdownFile(filename))
-    return res.status(400).send({ error: "Invalid file. Only Markdown files in docs/ allowed." });
+    return res
+      .status(400)
+      .send({ error: "Invalid file. Only Markdown files in docs/ allowed." });
 
   const filePath = path.join(DOCS_DIR, filename);
-  console.log("filepath: " + filePath)
+  console.log("filepath: " + filePath);
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) return res.status(404).send({ error: "File not found" });
     res.json({ content: data });
@@ -79,7 +83,7 @@ app.get("/tree", (req, res) => {
   try {
     const tree = getFileTree(DOCS_DIR);
     // return only children of root
-    console.log(tree.children)
+    console.log(tree.children);
     res.json(tree.children);
   } catch (err) {
     res.status(500).send({ error: err.message });
@@ -125,10 +129,12 @@ app.listen(PORT, () => {
 
 app.post("/delete", (req, res) => {
   const { path: targetPath, type } = req.body;
-  if (!targetPath || !type) return res.status(400).send({ error: "Missing path or type" });
+  if (!targetPath || !type)
+    return res.status(400).send({ error: "Missing path or type" });
 
   const resolved = path.resolve(DOCS_DIR, targetPath);
-  if (!resolved.startsWith(DOCS_DIR)) return res.status(400).send({ error: "Invalid path" });
+  if (!resolved.startsWith(DOCS_DIR))
+    return res.status(400).send({ error: "Invalid path" });
 
   try {
     if (type === "file") {
@@ -146,7 +152,8 @@ app.post("/delete", (req, res) => {
 app.post("/rename", (req, res) => {
   const { path: targetPath, newName } = req.body;
   const resolved = path.resolve(DOCS_DIR, targetPath);
-  if (!resolved.startsWith(DOCS_DIR)) return res.status(400).send({ error: "Invalid path" });
+  if (!resolved.startsWith(DOCS_DIR))
+    return res.status(400).send({ error: "Invalid path" });
 
   const newPath = path.join(path.dirname(resolved), newName);
   fs.rename(resolved, newPath, (err) => {
