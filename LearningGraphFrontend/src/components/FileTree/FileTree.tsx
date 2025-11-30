@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import FileNodeComponent from "./FileNode";
 import FolderNodeComponent from "./FolderNode";
 import Toast from "../ToastComponent";
-import { FilesApiService } from "../../services/filesAPIService";
+import { FilesApiService } from "../../services/filesApiService";
 
 export type FileNode = {
   name: string;
@@ -19,8 +19,14 @@ type FileTreeProps = {
 export default function FileTree({ onSelectFile }: FileTreeProps) {
   const [nodes, setNodes] = useState<FileNode[] | null>(null);
   const apiService = new FilesApiService();
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const showToast = (message: string, type: "success" | "error" = "success") => {
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+  const showToast = (
+    message: string,
+    type: "success" | "error" = "success"
+  ) => {
     setToast({ message, type });
   };
 
@@ -53,7 +59,11 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     };
   }, []);
 
-  const handleAdd = async (parentPath: string, name: string, type: "file" | "folder") => {
+  const handleAdd = async (
+    parentPath: string,
+    name: string,
+    type: "file" | "folder"
+  ) => {
     try {
       await apiService.add(parentPath, name, type);
       await fetchTreeAsync();
