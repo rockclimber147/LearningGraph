@@ -3,35 +3,16 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
+import { isValidMarkdownFile, getFileTree, DOCS_DIR, __dirname, __filename } from "./fileUtils.js"
 
 const app = express();
 const PORT = 5001;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const DOCS_DIR = path.join(__dirname, "docs");
 
 app.use(cors());
 app.use(bodyParser.json());
 
 if (!fs.existsSync(DOCS_DIR)) {
   fs.mkdirSync(DOCS_DIR);
-}
-
-function getFileTree(dir) {
-  const stats = fs.statSync(dir);
-  if (stats.isFile()) return { name: path.basename(dir), type: "file" };
-
-  const children = fs
-    .readdirSync(dir)
-    .map((child) => getFileTree(path.join(dir, child)));
-  return { name: path.basename(dir), type: "folder", children };
-}
-
-function isValidMarkdownFile(filename) {
-  const resolved = path.resolve(DOCS_DIR, filename);
-  return resolved.startsWith(DOCS_DIR) && resolved.endsWith(".md");
 }
 
 app.get("/health", (req, res) => {
