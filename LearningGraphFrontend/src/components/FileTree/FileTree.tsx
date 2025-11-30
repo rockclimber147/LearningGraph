@@ -69,7 +69,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
       await fetchTreeAsync();
       showToast("added successfully!", "success");
     } catch (err) {
-      alert("Error adding file/folder: " + err);
+      alert("Error adding: " + err);
     }
   };
 
@@ -80,7 +80,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
       await fetchTreeAsync();
       showToast("deleted successfully!", "success");
     } catch (err) {
-      alert("Error deleting file/folder: " + err);
+      alert("Error deleting: " + err);
     }
   };
 
@@ -90,7 +90,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
       await fetchTreeAsync();
       showToast("renamed successfully!", "success");
     } catch (err) {
-      alert("Error renaming file/folder: " + err);
+      alert("Error renaming: " + err);
     }
   };
 
