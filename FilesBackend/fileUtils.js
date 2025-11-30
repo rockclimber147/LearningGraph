@@ -20,3 +20,7 @@ export function isValidMarkdownFile(filename) {
   const resolved = path.resolve(DOCS_DIR, filename);
   return resolved.startsWith(DOCS_DIR) && resolved.endsWith(".md");
 }
+
+export function thingThatReturns1() {
+    return 1;
+}

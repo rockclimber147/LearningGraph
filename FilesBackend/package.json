@@ -7,7 +7,9 @@
   },
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx vitest run",
+    "predeploy_test": "npx vitest run __test__/predeploy.test.js",
+    "postdeploy_test": "npx vitest run __test__/postdeploy.test.js",
     "start": "node server.js"
   },
   "keywords": [],
@@ -18,5 +20,9 @@
     "body-parser": "^2.2.1",
     "cors": "^2.8.5",
     "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.4",
+    "vitest": "^3.2.4"
   }
 }
