@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite' // This imports Vite’s config wrapper so TypeScript gets correct types and autocomplete
 import react from '@vitejs/plugin-react' // Vite doesn't understand JSX or React by default
 import tailwindcss from '@tailwindcss/vite'
@@ -12,4 +13,10 @@ export default defineConfig({
     }),
     tailwindcss()
   ],
-})
+  test: {
+    globals: true,        // use describe, it, expect globally
+    environment: 'jsdom', // simulate browser
+    include: ['**/__tests__/**/*.{test,spec}.{ts,tsx,js,jsx}'], // include TS files
+    setupFiles: './src/setupTests.ts', // optional global setup
+  },
+});
