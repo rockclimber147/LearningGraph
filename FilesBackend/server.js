@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const app = express();
-const PORT = 3000;
+const PORT = 5001;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -60,7 +60,6 @@ app.post("/save", (req, res) => {
 
 app.get("/load", (req, res) => {
   const filename = req.query.filename;
-  console.log(filename);
   if (!filename) return res.status(400).send({ error: "Missing filename" });
 
   if (!isValidMarkdownFile(filename))
@@ -69,7 +68,6 @@ app.get("/load", (req, res) => {
       .send({ error: "Invalid file. Only Markdown files in docs/ allowed." });
 
   const filePath = path.join(DOCS_DIR, filename);
-  console.log("filepath: " + filePath);
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) return res.status(404).send({ error: "File not found" });
     res.json({ content: data });
@@ -80,7 +78,6 @@ app.get("/tree", (req, res) => {
   try {
     const tree = getFileTree(DOCS_DIR);
     // return only children of root
-    console.log(tree.children);
     res.json(tree.children);
   } catch (err) {
     res.status(500).send({ error: err.message });

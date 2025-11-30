@@ -1,6 +1,6 @@
 # React Components
 
-## **React Components – High-Level Overview**
+## **React Components High-Level Overview**
 
 ### **What is a React Component?**
 
