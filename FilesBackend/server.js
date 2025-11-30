@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const app = express();
-const PORT = 5001;
+const PORT = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -33,6 +33,10 @@ function isValidMarkdownFile(filename) {
   const resolved = path.resolve(DOCS_DIR, filename);
   return resolved.startsWith(DOCS_DIR) && resolved.endsWith(".md");
 }
+
+app.get("/health", (req, res) => {
+  return res.status(200).send("healthy");
+});
 
 app.post("/save", (req, res) => {
   const { filename, content } = req.body;
@@ -113,10 +117,6 @@ app.post("/add", (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`FilesBackend server running at http://localhost:${PORT}`);
-});
-
 app.post("/delete", (req, res) => {
   const { path: targetPath, type } = req.body;
   if (!targetPath || !type)
@@ -150,3 +150,11 @@ app.post("/rename", (req, res) => {
     res.send({ message: "Renamed successfully" });
   });
 });
+
+export default app;
+
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`FilesBackend server running at http://localhost:${PORT}`);
+  });
+}
