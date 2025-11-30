@@ -22,9 +22,9 @@ export default function FileNodeComponent({
     options: { label: string; onClick: () => void }[];
   } | null>(null);
 
-              const [renaming, setRenaming] = useState(false);
-              const [newName, setNewName] = useState(name);
-              const inputRef = useRef<HTMLInputElement>(null);
+                const [renaming, setRenaming] = useState(false);
+                const [newName, setNewName] = useState(name);
+                const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input when entering rename mode
   useEffect(() => {
