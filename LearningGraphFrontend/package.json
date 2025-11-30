@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "npx vitest run"
+    "test": "npx vitest run",
+    "test:build": "vite build --mode test"
   },
   "dependencies": {
     "@blocknote/core": "^0.42.3",
