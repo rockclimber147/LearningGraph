@@ -5,6 +5,7 @@ import Toast  from "./ToastComponent"
 import { FilesApiService } from "../services/filesApiService";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
+import { DefaultMetaData } from "../models/markdown";
 
 type MarkdownEditorProps = {
   filePath: string;
@@ -29,8 +30,9 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
   const handleLoad = useCallback(async (path: string) => {
     if (!path) return;
     try {
-      const content = await apiService.load(path);
-      const blocks = editor.tryParseMarkdownToBlocks(content);
+      const markdown = await apiService.load(path);
+      const blocks = editor.tryParseMarkdownToBlocks(markdown.content);
+      console.log(markdown.content)
       editor.replaceBlocks(editor.document, blocks);
     } catch (err) {
       console.error(err);
@@ -47,7 +49,7 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
   const handleSave = useCallback(async () => {
     if (!filePath || !contentRef.current) return;
     try {
-      await apiService.save(filePath, contentRef.current);
+      await apiService.save(filePath, contentRef.current, new DefaultMetaData());
       showToast("Saved successfully!", "success");
     } catch (err) {
       showToast("Error saving file: " + err, "error");

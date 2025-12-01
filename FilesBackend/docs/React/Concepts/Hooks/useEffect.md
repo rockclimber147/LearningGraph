@@ -1,3 +1,9 @@
+---
+title: title
+tags: []
+prerequisites: []
+related: []
+---
 # useEffect
 
 Note that in dev mode, React renders all components twice after a component mounts as a stress test to verify effect logic is implemented correctly.

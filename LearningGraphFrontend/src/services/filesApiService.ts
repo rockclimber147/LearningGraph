@@ -1,4 +1,5 @@
 import { type FileNode } from "../components/FileTree/FileTree";
+import { MarkdownFile, MarkdownMetaData } from "../models/markdown";
 
 export class FilesApiService {
   private baseUrl: string;
@@ -40,18 +41,18 @@ export class FilesApiService {
     if (!res.ok) throw new Error("Failed to rename node");
   }
 
-  async load(filePath: string): Promise<string> {
+  async load(filePath: string): Promise<MarkdownFile> {
     const res = await fetch(`${this.baseUrl}/load?filename=${encodeURIComponent(filePath)}`);
     if (!res.ok) throw new Error("File not found");
     const data = await res.json();
-    return data.content;
+    return new MarkdownFile(data);
   }
 
-  async save(filePath: string, content: string) {
+  async save(filePath: string, markdowncontent: string, metaData: MarkdownMetaData) {
     const res = await fetch(`${this.baseUrl}/save`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename: filePath, content }),
+      body: JSON.stringify({ filename: filePath, content: markdowncontent, metadata: metaData }),
     });
     if (!res.ok) throw new Error("Failed to save file");
   }

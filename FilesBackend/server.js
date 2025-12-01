@@ -3,7 +3,14 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import fs from "fs";
 import path from "path";
-import { isValidMarkdownFile, getFileTree, DOCS_DIR, __dirname, __filename } from "./fileUtils.js"
+import {
+  isValidMarkdownFile,
+  getFileTree,
+  DOCS_DIR,
+  __dirname,
+  __filename,
+} from "./fileUtils.js";
+import matter from "gray-matter";
 
 const app = express();
 const PORT = 5001;
@@ -20,7 +27,7 @@ app.get("/health", (req, res) => {
 });
 
 app.post("/save", (req, res) => {
-  const { filename, content } = req.body;
+  const { filename, content, metadata } = req.body;
   if (!filename || !content)
     return res.status(400).send("Missing filename or content");
 
@@ -28,12 +35,12 @@ app.post("/save", (req, res) => {
     return res
       .status(400)
       .send("Invalid file. Only Markdown files in docs/ allowed.");
-
   const filePath = path.join(DOCS_DIR, filename);
   const dir = path.dirname(filePath);
   fs.mkdirSync(dir, { recursive: true });
-
-  fs.writeFile(filePath, content, "utf8", (err) => {
+  
+  const fileWithFrontmatter = matter.stringify(content, metadata);
+  fs.writeFile(filePath, fileWithFrontmatter, "utf8", (err) => {
     if (err) return res.status(500).send(err.message);
     res.send({ message: "File saved successfully" });
   });
@@ -50,8 +57,28 @@ app.get("/load", (req, res) => {
 
   const filePath = path.join(DOCS_DIR, filename);
   fs.readFile(filePath, "utf8", (err, data) => {
-    if (err) return res.status(404).send({ error: "File not found" });
-    res.json({ content: data });
+    if (err) {
+      console.log("error reading file: " + filePath);
+      return res.status(404).send({ error: "File not found" });
+    }
+
+    try {
+      const result = matter(data);
+      const structuredResponse = {
+        fileName: filename,
+        content: result.content,
+        metadata: {
+          title: result.data.title || "Untitled Topic",
+          tags: result.data.tags || [],
+          prerequisites: result.data.prerequisites || [],
+          related: result.data.related || [],
+        },
+      };
+      res.json(structuredResponse);
+    } catch (parseError) {
+      console.error(`Error parsing frontmatter for ${filename}:`, parseError);
+      return res.status(500).send({ error: "Failed to parse file content." });
+    }
   });
 });
 

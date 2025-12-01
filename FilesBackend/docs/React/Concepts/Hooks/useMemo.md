@@ -1,3 +1,9 @@
+---
+title: title
+tags: []
+prerequisites: []
+related: []
+---
 # useMemo
 
 This hook memoizes a value returned by a function. It caches the results of a function so it's only recalculated when the dependencies change. It can prevent unnecessary function calls when a re render happens.

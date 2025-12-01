@@ -1,3 +1,9 @@
+---
+title: title
+tags: []
+prerequisites: []
+related: []
+---
 # useCallback
 
 useCallback memoizes a function reference similarly to useMemo.
