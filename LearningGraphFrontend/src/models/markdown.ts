@@ -28,7 +28,7 @@ export class DefaultMetaData extends MarkdownMetaData {
 export class MarkdownFile {
     fileName: string;
     content: string;
-    metaData: MarkdownMetaData;
+    metadata: MarkdownMetaData;
 
     constructor(data: {
         fileName: string;
@@ -37,6 +37,6 @@ export class MarkdownFile {
     }) {
         this.fileName = data.fileName;
         this.content = data.content;
-        this.metaData = new MarkdownMetaData(data.metadata);
+        this.metadata = new MarkdownMetaData(data.metadata);
     }
 }
