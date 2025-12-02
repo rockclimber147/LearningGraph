@@ -33,6 +33,7 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
     // const layoutManager = new FruchtermanReingoldLayoutManager();
     loadTree(controller)
     const handleMouse = (e: MouseEvent) => {
+      e.preventDefault()
       controller.updateMouseState(e);
       controller.handleMouseInteractions(view);
     };
