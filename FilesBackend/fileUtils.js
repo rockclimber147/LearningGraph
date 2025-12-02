@@ -22,5 +22,5 @@ export function isValidMarkdownFile(filename) {
 }
 
 export function thingThatReturns1() {
-    return 1;
+    return 2; // OH NO
 }
