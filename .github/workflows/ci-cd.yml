@@ -36,14 +36,15 @@ jobs:
   deploy:
       name: Deploy to Droplet
       needs: tests
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       runs-on: ubuntu-latest
 
       steps:
-        - name: webfactory/ssh-agent
+        - name: Set up SSH
           uses: webfactory/ssh-agent@v0.9.0
           with:
             ssh-private-key: ${{ secrets.DEVOPS_SSH_KEY }}
 
         - name: Deploy to Droplet
           run: |
-            ssh -o StrictHostKeyChecking=no root@138.197.200.148 "/root/learninggraph/scripts/deploy.sh"
+            ssh -o StrictHostKeyChecking=no root@${{ secrets.DEVOPS_PUBLIC_IP }} "/root/learninggraph/scripts/deploy.sh"
