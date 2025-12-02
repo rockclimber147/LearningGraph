@@ -30,7 +30,6 @@ export class GraphModel {
 
   addNode(node: GraphNode) {
     this.nodes.push(node);
-    TempHelper.randomlyConnectNodes(this, node)
   }
 
   getNode(id: number): GraphNode | undefined {
@@ -146,23 +145,5 @@ export class Coordinate {
     this.x /= length;
     this.y /= length;
     return this;
-  }
-}
-
-class TempHelper {
-  static randomlyConnectNodes(model: GraphModel, node: GraphNode) {
-    for (const other of model.nodes) {
-      // skip itself
-      if (other.id === node.id) continue;
-
-      // 50% chance
-      if (Math.random() < 0.5) {
-        // skip if already neighbors
-        if (node.neighbors.has(other.id)) continue;
-
-        // create bidirectional graph edge
-        model.connectNodes(node.id, other.id);
-      }
-    }
   }
 }

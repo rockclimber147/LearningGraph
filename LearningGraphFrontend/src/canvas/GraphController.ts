@@ -1,6 +1,7 @@
 import { GraphModel, Coordinate } from "./GraphModel";
 import { MouseState, MouseButtons } from "./MouseState";
 import { GraphNode, NodeIdGenerator } from "./Node";
+import { type FileNode } from "../components/FileTree/FileTree";
 
 export class GraphController {
   private model: GraphModel;
@@ -96,5 +97,41 @@ export class GraphController {
 
     // Always re-render
     view.render();
+  }
+
+addNodes(fileNodes: FileNode[]) {
+    const nodeMap = new Map<string, number>();
+    for (const rootNode of fileNodes) {
+      this.traverseAndBuildGraph(rootNode, null, nodeMap);
+    }
+  }
+
+  private traverseAndBuildGraph(
+    fileNode: FileNode,
+    parentId: number | null,
+    nodeMap: Map<string, number> // Map from file name/path to GraphNode ID
+  ) {
+    const nodeId = NodeIdGenerator.nextId();
+    const nodeLabel = fileNode.name;
+    
+    const position = new Coordinate(0, 0); 
+
+    const newNode = new GraphNode(nodeId, position, nodeLabel, fileNode.type == "folder" ? "lightGreen" : "lightBlue");
+    console.log(newNode)
+    this.model.addNode(newNode);
+    
+    const key = fileNode.path || fileNode.name; // Use path if available, otherwise name
+    nodeMap.set(key, nodeId);
+
+    if (parentId !== null) {
+        // Connect the current node to its parent (bidirectional connection)
+        this.model.connectNodes(nodeId, parentId);
+    }
+
+    if (fileNode.children) {
+      for (const childNode of fileNode.children) {
+        this.traverseAndBuildGraph(childNode, nodeId, nodeMap);
+      }
+    }
   }
 }
