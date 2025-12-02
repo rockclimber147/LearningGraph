@@ -4,7 +4,7 @@ import { MarkdownFile, MarkdownMetaData } from "../models/markdown";
 export class FilesApiService {
   private baseUrl: string;
 
-  constructor(baseUrl = "http://127.0.0.1:5001/api") {
+  constructor(baseUrl = "/api") {
     this.baseUrl = baseUrl;
   }
 
