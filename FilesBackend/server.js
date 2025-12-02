@@ -14,7 +14,7 @@ import matter from "gray-matter";
 
 const app = express();
 const PORT = 5001;
-const HOST = "0.0.0.0"
+const HOST = "127.0.0.1"
 
 app.use(cors());
 app.use(bodyParser.json());
