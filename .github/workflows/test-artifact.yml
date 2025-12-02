@@ -82,7 +82,7 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DEVOPS_SSH_KEY }}
-          known-hosts: ${{ env.REMOTE_HOST }}
+          # known-hosts: ${{ env.REMOTE_HOST }} <-- REMOVED: This input is not supported by the action and causes a warning.
 
       # --- Download Artifacts ---
       - name: Download Frontend Artifact
@@ -115,6 +115,7 @@ jobs:
           # 2. Rsync Backend Source Code
           echo "Syncing Backend code to ${REMOTE_HOST}:${REMOTE_BASE_DIR}/FilesBackend"
           rsync -az --delete \
+            --exclude 'docs/content/' \
             -e "ssh -o StrictHostKeyChecking=no" ./FilesBackend/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_BASE_DIR/FilesBackend/
 
           # 3. Execute installation and restart commands remotely via SSH
