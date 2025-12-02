@@ -1,0 +1,50 @@
+name: Build, Test, and Package Source
+
+on:
+  workflow_call:
+    outputs:
+      build_success:
+        description: "True if the build_test_package job matrix succeeded"
+        value: ${{ jobs.build_test_package.result }}
+
+jobs:
+  build_test_package:
+    name: Test & Package Source
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Allows all tests to run even if one matrix element fails
+      matrix:
+        folder: [FilesBackend, LearningGraphFrontend]
+    defaults:
+      run:
+        working-directory: ${{ matrix.folder }}
+        
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies (Local Runner)
+        run: npm install
+
+      - name: Run Tests
+        run: npm run test
+
+      - name: Create Clean Source Artifact
+        run: |
+          # Use GITHUB_WORKSPACE to ensure zip command runs from repo root
+          cd $GITHUB_WORKSPACE
+          # Creates a zip file of the source folder, excluding node_modules and git metadata
+          zip -r ${{ matrix.folder }}.zip ${{ matrix.folder }} \
+            --exclude=*.git* --exclude=*/node_modules/*
+
+      - name: Upload Source Artifact ${{ matrix.folder }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.folder }}-Source
+          path: ${{ matrix.folder }}.zip
+          retention-days: 1

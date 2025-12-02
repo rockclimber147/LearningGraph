@@ -1,0 +1,28 @@
+name: Main CI/CD Orchestration Pipeline
+
+on:
+  push:
+    branches:
+      - dev # Test deploy on 'dev' branch
+      - main # Production deploy on 'main' branch
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  test:
+    name: Run Tests and Create Artifacts
+    uses: ./.github/workflows/test.yml # Path to the reusable workflow file
+
+  deploy:
+    name: Deploy Application
+    needs: test # Ensures deployment only starts if tests succeed
+    
+    if: success() && github.event_name == 'push' && github.ref == 'refs/heads/dev'
+
+    uses: ./.github/workflows/deploy.yml # Path to the reusable workflow file
+    secrets:
+      DEVOPS_SSH_KEY: ${{ secrets.DEVOPS_SSH_KEY }}
+      DEVOPS_USERNAME: ${{ secrets.DEVOPS_USERNAME }}
+      DEVOPS_PUBLIC_IP: ${{ secrets.DEVOPS_PUBLIC_IP }}
