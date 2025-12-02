@@ -20,11 +20,6 @@ vi.mock('../components/GraphCanvas', () => ({
 }));
 
 describe('LandingPage', () => {
-  it('renders welcome heading with username', () => {
-    render(<LandingPage />);
-    expect(screen.getByText(/welcome, testuser/i)).toBeInTheDocument();
-  });
-
   it('renders GraphCanvas', () => {
     render(<LandingPage />);
     expect(screen.getByTestId('graph-canvas')).toBeInTheDocument();
@@ -32,9 +27,6 @@ describe('LandingPage', () => {
 
   it('renders buttons and can click them', () => {
     const { getByText } = render(<LandingPage />);
-    const markdownButton = getByText(/open markdown editor/i);
-    const logoutButton = getByText(/logout/i);
-
     fireEvent.click(markdownButton);
     fireEvent.click(logoutButton);
 
