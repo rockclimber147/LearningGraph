@@ -9,33 +9,29 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [animateEnabled, setAnimateEnabled] = useState(true);
   const apiService = useMemo(() => new FilesApiService(), []);
-  const model = useMemo(() => new GraphModel(), [])
-  const controller = useMemo(() => new GraphController(model), [model])
   const animateRef = useRef(true);
   
   useEffect(() => {
     animateRef.current = animateEnabled;
   }, [animateEnabled]);
 
-  useEffect(() => {
-    const loadTree = async () => {
+  const loadTree = async (controller: GraphController) => {
     const fileTree = await apiService.fetchTree();
     console.log("here")
     controller.addNodes(fileTree)
-    }
-    loadTree()
-  }, [apiService, controller])
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
+    const model = new GraphModel()
+    const controller = new GraphController(model)
     const view = new GraphView(ctx, model);
     const layoutManager = new PhysicsBasedLayoutManager();
     // const layoutManager = new FruchtermanReingoldLayoutManager();
-
+    loadTree(controller)
     const handleMouse = (e: MouseEvent) => {
       controller.updateMouseState(e);
       controller.handleMouseInteractions(view);

@@ -30,7 +30,6 @@ export class GraphModel {
 
   addNode(node: GraphNode) {
     this.nodes.push(node);
-    TempHelper.randomlyConnectNodes(this, node)
   }
 
   getNode(id: number): GraphNode | undefined {

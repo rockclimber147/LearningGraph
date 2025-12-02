@@ -100,15 +100,8 @@ export class GraphController {
   }
 
 addNodes(fileNodes: FileNode[]) {
-    // A map is needed to track which GraphNode ID corresponds to which FileNode
-    // This is useful for future lookups or if you were processing connections separately.
-    // However, since we are doing connections during the recursive traversal, 
-    // we primarily use it to ensure the node creation is tracked.
     const nodeMap = new Map<string, number>();
-
-    // Iterate through the top-level nodes and start the recursive process.
     for (const rootNode of fileNodes) {
-      // Top-level nodes have no parent (parentId: null)
       this.traverseAndBuildGraph(rootNode, null, nodeMap);
     }
   }
@@ -123,7 +116,7 @@ addNodes(fileNodes: FileNode[]) {
     
     const position = new Coordinate(0, 0); 
 
-    const newNode = new GraphNode(nodeId, position, nodeLabel);
+    const newNode = new GraphNode(nodeId, position, nodeLabel, fileNode.type == "folder" ? "lightGreen" : "lightBlue");
     console.log(newNode)
     this.model.addNode(newNode);
     
