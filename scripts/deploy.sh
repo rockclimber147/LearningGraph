@@ -1,11 +1,19 @@
 #!/bin/bash
-cd /root/learninggraph
+cd /root/learninggraph || { echo "root/learninggraph directory not found"; exit 1; }
+
+# Pull latest code
 git pull origin main
 
-# Install dependencies
-/root/.bun/bin/bun install
+# Frontend
+cd LearningGraphFrontend || { echo "root/LearningGraphFrontend directory not found"; exit 1; }
+npm install
+pm2 restart learning-graph-frontend
+cd ..
 
 # Restart service
-sudo systemctl restart learninggraph
+cd FilesBackend || { echo "root/FilesBackend directory not found"; exit 1; }
+npm install
+pm2 restart learning-graph-backend
 
 echo "Deployment complete!"
+
