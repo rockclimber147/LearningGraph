@@ -1,0 +1,76 @@
+name: Deploy to Droplet via Rsync
+
+on:
+  workflow_call:
+    secrets:
+      DEVOPS_SSH_KEY:
+        required: true
+      DEVOPS_USERNAME:
+        required: true
+      DEVOPS_PUBLIC_IP:
+        required: true
+
+jobs:
+  deploy_to_droplet:
+    name: Deploy to Droplet
+    runs-on: ubuntu-latest
+    
+    env:
+      REMOTE_USER: ${{ secrets.DEVOPS_USERNAME }}
+      REMOTE_HOST: ${{ secrets.DEVOPS_PUBLIC_IP }}
+      REMOTE_BASE_DIR: /root/LearningGraph
+
+    steps:
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEVOPS_SSH_KEY }}
+
+      - name: Download Frontend Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LearningGraphFrontend-Source
+          path: ./
+
+      - name: Download Backend Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: FilesBackend-Source
+          path: ./
+
+      - name: Unzip Artifacts
+        run: |
+          unzip LearningGraphFrontend.zip -d .
+          unzip FilesBackend.zip -d .
+          
+      - name: Rsync Code and Run Remote Deploy Script
+        run: |
+          # 1. Rsync Frontend Source Code
+          echo "Syncing Frontend code to ${REMOTE_HOST}:${REMOTE_BASE_DIR}/LearningGraphFrontend"
+          rsync -az --delete \
+            -e "ssh -o StrictHostKeyChecking=no" ./LearningGraphFrontend/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_BASE_DIR/LearningGraphFrontend/
+            
+          # 2. Rsync Backend Source Code (Excluding generated docs/content)
+          echo "Syncing Backend code to ${REMOTE_HOST}:${REMOTE_BASE_DIR}/FilesBackend"
+          rsync -az --delete \
+            --exclude 'docs/content/' \
+            -e "ssh -o StrictHostKeyChecking=no" ./FilesBackend/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_BASE_DIR/FilesBackend/
+
+          # 3. Execute installation and restart commands remotely via SSH
+          echo "Executing remote npm install and pm2 restart commands"
+          ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST << 'EOF'
+            set -e
+
+            echo "Starting Frontend deployment"
+            cd /root/LearningGraph/LearningGraphFrontend
+            npm install
+            pm2 restart learning-graph-frontend
+
+            echo "Starting Backend deployment"
+            cd /root/LearningGraph/FilesBackend
+            npm install
+            pm2 restart learning-graph-backend
+
+            echo "Deployment complete!"
+            
+          EOF

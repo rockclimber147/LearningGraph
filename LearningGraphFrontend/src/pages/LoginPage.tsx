@@ -24,7 +24,7 @@ export default function LoginPage() {
       <h2 className="mb-4 text-xl font-semibold">Login</h2>
 
       <input
-        placeholder="Username"
+        placeholder="anything for now"
         value={user}
         onChange={(e) => setUser(e.target.value)}
         className="block w-full mb-2 px-3 py-2 border border-gray-300 rounded"
@@ -32,7 +32,7 @@ export default function LoginPage() {
 
       <input
         type="password"
-        placeholder="Password"
+        placeholder="this is not saved"
         value={pass}
         onChange={(e) => setPass(e.target.value)}
         className="block w-full mb-2 px-3 py-2 border border-gray-300 rounded"

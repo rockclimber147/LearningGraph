@@ -1,0 +1,138 @@
+name: CI/CD Pipeline with Artifacts
+
+on:
+  push:
+    branches:
+      - dev # <-- Updated to trigger on 'dev' branch pushes
+  pull_request:
+    branches:
+      - main
+      - dev # <-- Updated to trigger on 'dev' pull requests
+
+env:
+  NODE_VERSION: 20
+  REMOTE_USER: ${{ secrets.DEVOPS_USERNAME }}
+  REMOTE_HOST: ${{ secrets.DEVOPS_PUBLIC_IP }}
+  REMOTE_BASE_DIR: /root/LearningGraph
+
+jobs:
+  # ----------------------------------------------
+  # 1. BUILD_TEST_PACKAGE JOB
+  # This job runs tests and prepares the source code artifacts.
+  # ----------------------------------------------
+  build_test_package:
+    name: Test & Package Source
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        folder: [FilesBackend, LearningGraphFrontend]
+    defaults:
+      run:
+        working-directory: ${{ matrix.folder }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies (Local Runner)
+        # Note: This runs locally on the GitHub Runner.
+        run: npm install
+
+      - name: Run Tests
+        run: npm run test
+
+      # --- Artifact Packaging ---
+      # Crucial Step: We package the source code *without* the local node_modules
+      - name: Create Clean Source Artifact
+        # We move up to the root to run the zip command correctly
+        run: |
+          cd $GITHUB_WORKSPACE
+          # Creates a zip file of the source folder, excluding node_modules and git metadata
+          zip -r ${{ matrix.folder }}.zip ${{ matrix.folder }} \
+            --exclude=*.git* --exclude=*/node_modules/*
+
+      # Upload the clean source code zip as an artifact
+      - name: Upload Source Artifact ${{ matrix.folder }}
+        uses: actions/upload-artifact@v4 # <-- UPDATED to v4
+        with:
+          name: ${{ matrix.folder }}-Source
+          path: ${{ matrix.folder }}.zip
+          # Set retention low to manage free storage quota
+          retention-days: 1 
+
+  # ----------------------------------------------
+  # 2. DEPLOY_TO_DROPLET JOB
+  # This job downloads the artifacts and deploys them.
+  # ----------------------------------------------
+  deploy_to_droplet:
+    name: Deploy to Droplet
+    needs: build_test_package # Ensures deploy only runs if tests pass
+    # UPDATED LOGIC: Run ONLY if tests succeed AND the push is to the 'dev' branch.
+    if: success() && github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+
+    steps:
+      # --- Setup ---
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEVOPS_SSH_KEY }}
+          # known-hosts: ${{ env.REMOTE_HOST }} <-- REMOVED: This input is not supported by the action and causes a warning.
+
+      # --- Download Artifacts ---
+      - name: Download Frontend Artifact
+        uses: actions/download-artifact@v4 # <-- UPDATED to v4
+        with:
+          name: LearningGraphFrontend-Source
+          path: ./
+
+      - name: Download Backend Artifact
+        uses: actions/download-artifact@v4 # <-- UPDATED to v4
+        with:
+          name: FilesBackend-Source
+          path: ./
+
+      # --- Unzip Artifacts ---
+      - name: Unzip Artifacts
+        run: |
+          unzip LearningGraphFrontend.zip -d .
+          unzip FilesBackend.zip -d .
+          
+      # --- Rsync Transfer and Remote Execution ---
+      - name: Rsync Code and Run Remote Deploy Script
+        # This step uses the code downloaded from the artifact (the clean source)
+        run: |
+          # 1. Rsync Frontend Source Code
+          echo "Syncing Frontend code to ${REMOTE_HOST}:${REMOTE_BASE_DIR}/LearningGraphFrontend"
+          rsync -az --delete \
+            -e "ssh -o StrictHostKeyChecking=no" ./LearningGraphFrontend/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_BASE_DIR/LearningGraphFrontend/
+            
+          # 2. Rsync Backend Source Code
+          echo "Syncing Backend code to ${REMOTE_HOST}:${REMOTE_BASE_DIR}/FilesBackend"
+          rsync -az --delete \
+            --exclude 'docs/content/' \
+            -e "ssh -o StrictHostKeyChecking=no" ./FilesBackend/ $REMOTE_USER@$REMOTE_HOST:$REMOTE_BASE_DIR/FilesBackend/
+
+          # 3. Execute installation and restart commands remotely via SSH
+          echo "Executing remote npm install and pm2 restart commands"
+          ssh -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST << 'EOF'
+            set -e # Exit immediately if any command fails
+
+            echo "Starting Frontend deployment"
+            cd /root/LearningGraph/LearningGraphFrontend
+            npm install # Install dependencies on the server
+            pm2 restart learning-graph-frontend
+
+            echo "Starting Backend deployment"
+            cd /root/LearningGraph/FilesBackend
+            npm install # Install dependencies on the server
+            pm2 restart learning-graph-backend
+
+            echo "Deployment complete!"
+            
+          EOF
