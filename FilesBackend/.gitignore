@@ -1,6 +1,4 @@
 .env
 node_modules
 
-docs/React
 docs/content/*
-docs/testF/
