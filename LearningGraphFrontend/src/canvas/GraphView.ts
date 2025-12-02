@@ -17,6 +17,8 @@ export class GraphView {
     const { ctx, model } = this;
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = "#252525"
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 
     model.layers.forEach(layer => {
       layer.forEach(drawable => drawable.draw(ctx, model))
