@@ -58,7 +58,7 @@ jobs:
 
       # Upload the clean source code zip as an artifact
       - name: Upload Source Artifact ${{ matrix.folder }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # <-- UPDATED to v4
         with:
           name: ${{ matrix.folder }}-Source
           path: ${{ matrix.folder }}.zip
@@ -86,13 +86,13 @@ jobs:
 
       # --- Download Artifacts ---
       - name: Download Frontend Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4 # <-- UPDATED to v4
         with:
           name: LearningGraphFrontend-Source
           path: ./
 
       - name: Download Backend Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4 # <-- UPDATED to v4
         with:
           name: FilesBackend-Source
           path: ./
