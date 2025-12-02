@@ -34,6 +34,10 @@ jobs:
       - name: Run Tests
         run: npm run test
 
+      - name: Run Frontend Build Test (test:build)
+        if: success() && matrix.folder == 'LearningGraphFrontend'
+        run: npm run test:build
+
       - name: Create Clean Source Artifact
         run: |
           # Use GITHUB_WORKSPACE to ensure zip command runs from repo root
