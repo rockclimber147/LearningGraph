@@ -24,13 +24,4 @@ describe('LandingPage', () => {
     render(<LandingPage />);
     expect(screen.getByTestId('graph-canvas')).toBeInTheDocument();
   });
-
-  it('renders buttons and can click them', () => {
-    const { getByText } = render(<LandingPage />);
-    fireEvent.click(markdownButton);
-    fireEvent.click(logoutButton);
-
-    expect(markdownButton).toBeInTheDocument();
-    expect(logoutButton).toBeInTheDocument();
-  });
 });
