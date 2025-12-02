@@ -14,6 +14,7 @@ import matter from "gray-matter";
 
 const app = express();
 const PORT = 5001;
+const HOST = "127.0.0.1"
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -159,7 +160,7 @@ app.post("/rename", (req, res) => {
 export default app;
 
 if (process.env.NODE_ENV !== "test") {
-  app.listen(PORT, () => {
-    console.log(`FilesBackend server running at http://localhost:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`FilesBackend server running at http://${HOST}:${PORT}`);
   });
 }

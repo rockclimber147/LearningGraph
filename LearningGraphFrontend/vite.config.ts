@@ -19,4 +19,8 @@ export default defineConfig({
     include: ['**/__tests__/**/*.{test,spec}.{ts,tsx,js,jsx}'], // include TS files
     setupFiles: './src/setupTests.ts', // optional global setup
   },
+  // server: {
+  //   host: '0.0.0.0',
+  //   port: 5173,
+  // }
 });
