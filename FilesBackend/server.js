@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import fs from "fs";
 import path from "path";
 import {
-  isValidMarkdownFile,
+  isMarkdownFile,
   getFileTree,
   DOCS_DIR,
   __dirname,
@@ -14,7 +14,7 @@ import matter from "gray-matter";
 
 const app = express();
 const PORT = 5001;
-const HOST = "127.0.0.1"
+const HOST = "127.0.0.1";
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -32,14 +32,14 @@ app.post("/save", (req, res) => {
   if (!filename || !content)
     return res.status(400).send("Missing filename or content");
 
-  if (!isValidMarkdownFile(filename))
+  if (!isMarkdownFile(filename))
     return res
       .status(400)
       .send("Invalid file. Only Markdown files in docs/ allowed.");
   const filePath = path.join(DOCS_DIR, filename);
   const dir = path.dirname(filePath);
   fs.mkdirSync(dir, { recursive: true });
-  
+
   const fileWithFrontmatter = matter.stringify(content, metadata);
   fs.writeFile(filePath, fileWithFrontmatter, "utf8", (err) => {
     if (err) return res.status(500).send(err.message);
@@ -51,7 +51,7 @@ app.get("/load", (req, res) => {
   const filename = req.query.filename;
   if (!filename) return res.status(400).send({ error: "Missing filename" });
 
-  if (!isValidMarkdownFile(filename))
+  if (!isMarkdownFile(filename))
     return res
       .status(400)
       .send({ error: "Invalid file. Only Markdown files in docs/ allowed." });

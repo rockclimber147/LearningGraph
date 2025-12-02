@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import FileNodeComponent from "./FileNode";
 import FolderNodeComponent from "./FolderNode";
 import Toast from "../ToastComponent";
 import { FilesApiService } from "../../services/filesApiService";
+import { MarkdownMetaData } from "../../models/markdown";
 
 export type FileNode = {
   name: string;
   type: "file" | "folder";
   path?: string;
   children?: FileNode[];
+  metadata?: MarkdownMetaData;
 };
 
 type FileTreeProps = {
@@ -18,7 +20,7 @@ type FileTreeProps = {
 
 export default function FileTree({ onSelectFile }: FileTreeProps) {
   const [nodes, setNodes] = useState<FileNode[] | null>(null);
-  const apiService = new FilesApiService();
+  const apiService = useMemo(() => new FilesApiService(), []);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -33,6 +35,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
   const fetchTreeAsync = async () => {
     try {
       const data = await apiService.fetchTree();
+      console.log(data);
       setNodes(data);
     } catch (err) {
       console.error(err);
@@ -45,6 +48,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     const fetchTree = async () => {
       try {
         const data = await apiService.fetchTree();
+        console.log(data);
         if (isMounted) setNodes(data);
       } catch (err) {
         console.error(err);
@@ -56,7 +60,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [apiService]);
 
   const handleAdd = async (
     parentPath: string,
