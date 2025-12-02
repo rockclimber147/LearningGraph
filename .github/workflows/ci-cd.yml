@@ -47,4 +47,4 @@ jobs:
 
         - name: Deploy to Droplet
           run: |
-            ssh -o StrictHostKeyChecking=no root@${{ secrets.DEVOPS_PUBLIC_IP }} "/root/learninggraph/scripts/deploy.sh"
+            ssh -o StrictHostKeyChecking=no root@${{ secrets.DEVOPS_PUBLIC_IP }} "/root/LearningGraph/scripts/deploy.sh"
