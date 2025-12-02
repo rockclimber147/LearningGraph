@@ -44,8 +44,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
 
     const fetchTree = async () => {
       try {
-        const res = await fetch("http://localhost:5001/tree");
-        const data: FileNode[] = await res.json();
+        const data = await apiService.fetchTree();
         if (isMounted) setNodes(data);
       } catch (err) {
         console.error(err);
