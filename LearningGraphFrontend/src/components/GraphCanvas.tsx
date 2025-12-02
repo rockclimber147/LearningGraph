@@ -1,12 +1,16 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { GraphModel } from "../canvas/GraphModel";
 import { GraphView } from "../canvas/GraphView";
 import { GraphController } from "../canvas/GraphController";
 import { PhysicsBasedLayoutManager } from "../canvas/LayoutManager";
+import { FilesApiService } from "../services/filesApiService";
 
 export default function GraphCanvas({ width = 800, height = 600 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [animateEnabled, setAnimateEnabled] = useState(true);
+  const apiService = useMemo(() => new FilesApiService(), []);
+  const model = useMemo(() => new GraphModel(), [])
+  const controller = useMemo(() => new GraphController(model), [model])
   const animateRef = useRef(true);
   
   useEffect(() => {
@@ -14,14 +18,21 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
   }, [animateEnabled]);
 
   useEffect(() => {
+    const loadTree = async () => {
+    const fileTree = await apiService.fetchTree();
+    console.log("here")
+    controller.addNodes(fileTree)
+    }
+    loadTree()
+  }, [apiService, controller])
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const model = new GraphModel();
     const view = new GraphView(ctx, model);
-    const controller = new GraphController(model);
     const layoutManager = new PhysicsBasedLayoutManager();
     // const layoutManager = new FruchtermanReingoldLayoutManager();
 

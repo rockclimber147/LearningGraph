@@ -1,6 +1,7 @@
 import { GraphModel, Coordinate } from "./GraphModel";
 import { MouseState, MouseButtons } from "./MouseState";
 import { GraphNode, NodeIdGenerator } from "./Node";
+import { type FileNode } from "../components/FileTree/FileTree";
 
 export class GraphController {
   private model: GraphModel;
@@ -96,5 +97,48 @@ export class GraphController {
 
     // Always re-render
     view.render();
+  }
+
+addNodes(fileNodes: FileNode[]) {
+    // A map is needed to track which GraphNode ID corresponds to which FileNode
+    // This is useful for future lookups or if you were processing connections separately.
+    // However, since we are doing connections during the recursive traversal, 
+    // we primarily use it to ensure the node creation is tracked.
+    const nodeMap = new Map<string, number>();
+
+    // Iterate through the top-level nodes and start the recursive process.
+    for (const rootNode of fileNodes) {
+      // Top-level nodes have no parent (parentId: null)
+      this.traverseAndBuildGraph(rootNode, null, nodeMap);
+    }
+  }
+
+  private traverseAndBuildGraph(
+    fileNode: FileNode,
+    parentId: number | null,
+    nodeMap: Map<string, number> // Map from file name/path to GraphNode ID
+  ) {
+    const nodeId = NodeIdGenerator.nextId();
+    const nodeLabel = fileNode.name;
+    
+    const position = new Coordinate(0, 0); 
+
+    const newNode = new GraphNode(nodeId, position, nodeLabel);
+    console.log(newNode)
+    this.model.addNode(newNode);
+    
+    const key = fileNode.path || fileNode.name; // Use path if available, otherwise name
+    nodeMap.set(key, nodeId);
+
+    if (parentId !== null) {
+        // Connect the current node to its parent (bidirectional connection)
+        this.model.connectNodes(nodeId, parentId);
+    }
+
+    if (fileNode.children) {
+      for (const childNode of fileNode.children) {
+        this.traverseAndBuildGraph(childNode, nodeId, nodeMap);
+      }
+    }
   }
 }
