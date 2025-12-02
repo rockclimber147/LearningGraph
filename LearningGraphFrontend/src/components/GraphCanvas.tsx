@@ -1,31 +1,39 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { GraphModel } from "../canvas/GraphModel";
 import { GraphView } from "../canvas/GraphView";
 import { GraphController } from "../canvas/GraphController";
 import { PhysicsBasedLayoutManager } from "../canvas/LayoutManager";
+import { FilesApiService } from "../services/filesApiService";
 
 export default function GraphCanvas({ width = 800, height = 600 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [animateEnabled, setAnimateEnabled] = useState(true);
+  const apiService = useMemo(() => new FilesApiService(), []);
   const animateRef = useRef(true);
   
   useEffect(() => {
     animateRef.current = animateEnabled;
   }, [animateEnabled]);
 
+  const loadTree = async (controller: GraphController) => {
+    const fileTree = await apiService.fetchTree();
+    console.log("here")
+    controller.addNodes(fileTree)
+  }
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    const model = new GraphModel();
+    const model = new GraphModel()
+    const controller = new GraphController(model)
     const view = new GraphView(ctx, model);
-    const controller = new GraphController(model);
     const layoutManager = new PhysicsBasedLayoutManager();
     // const layoutManager = new FruchtermanReingoldLayoutManager();
-
+    loadTree(controller)
     const handleMouse = (e: MouseEvent) => {
+      e.preventDefault()
       controller.updateMouseState(e);
       controller.handleMouseInteractions(view);
     };

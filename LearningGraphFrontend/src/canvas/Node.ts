@@ -6,14 +6,16 @@ export class GraphNode implements Drawable {
   position: Coordinate;
   velocity: Coordinate = new Coordinate(0, 0);
   label: string;
+  color: string;
   radius: number = 25;
   neighbors = new Set<number>();
   isHovered: boolean = false;
 
-  constructor(id: number, position: Coordinate, label: string) {
+  constructor(id: number, position: Coordinate, label: string, color: string = "lightblue") {
     this.id = id;
     this.position = position;
     this.label = label;
+    this.color = color;
   }
 
   addNeighbor(otherId: number) {
@@ -35,7 +37,7 @@ export class GraphNode implements Drawable {
     if (this.isHovered) {
         ctx.fillStyle = "darkblue";
     } else {
-        ctx.fillStyle = "lightblue";
+        ctx.fillStyle = this.color;
     }
     ctx.fill();
     ctx.strokeStyle = "black";
