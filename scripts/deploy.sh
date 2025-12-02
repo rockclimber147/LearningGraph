@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /root/LearningGraph || { echo "root/learninggraph directory not found"; exit 1; }
+cd /root/LearningGraph || { echo "root/LearningGraph directory not found"; exit 1; }
 
 # Pull latest code
 git pull origin main
