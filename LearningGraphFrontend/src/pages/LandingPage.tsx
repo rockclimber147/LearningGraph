@@ -8,7 +8,7 @@ export default function LandingPage() {
 
   return (
     <div className="p-5">
-      <h1 className="mb-4 text-2xl font-semibold">Welcome, {username}!</h1>
+      <h1 className="mb-4 text-2xl font-semibold">Hello, {username}!</h1>
 
       <div className="my-5">
         <GraphCanvas width={800} height={600} />
