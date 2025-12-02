@@ -3,27 +3,34 @@ name: Main CI/CD Orchestration Pipeline
 on:
   push:
     branches:
-      - dev # Test trigger for CI/CD pipeline tests
+      - dev # Test deploy on 'dev' branch
       - main # Production deployment trigger
+    paths:
+      - 'FilesBackend/**'
+      - 'LearningGraphFrontend/**'
+      - '.github/workflows/test.yml'
+      - '.github/workflows/deploy.yml'
   pull_request:
     branches:
       - main
       - dev
+    paths:
+      - 'FilesBackend/**'
+      - 'LearningGraphFrontend/**'
+      - '.github/workflows/test.yml'
+      - '.github/workflows/deploy.yml'
 
 jobs:
   test:
     name: Run Tests and Create Artifacts
-    uses: ./.github/workflows/test.yml # Calls the reusable workflow that runs npm test/build and uploads artifacts.
+    uses: ./.github/workflows/test.yml
 
   deploy:
     name: Deploy Application
-    needs: test # Ensures deployment only starts if the 'test' job succeeds
-    
-    # FINAL PRODUCTION LOGIC: 
-    # Deploy ONLY if the 'test' job was successful AND the event is a push to the 'main' branch.
+    needs: test
     if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-    uses: ./.github/workflows/deploy.yml # Calls the reusable deployment workflow.
+    uses: ./.github/workflows/deploy.yml
     secrets:
       DEVOPS_SSH_KEY: ${{ secrets.DEVOPS_SSH_KEY }}
       DEVOPS_USERNAME: ${{ secrets.DEVOPS_USERNAME }}

@@ -12,7 +12,7 @@ jobs:
     name: Test & Package Source
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false # Allows all tests to run even if one matrix element fails
+      fail-fast: false
       matrix:
         folder: [FilesBackend, LearningGraphFrontend]
     defaults:
@@ -39,14 +39,15 @@ jobs:
         run: npm run test:build
 
       - name: Create Clean Source Artifact
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
         run: |
-          # Use GITHUB_WORKSPACE to ensure zip command runs from repo root
+          echo "Preparing artifact for deployment..."
           cd $GITHUB_WORKSPACE
-          # Creates a zip file of the source folder, excluding node_modules and git metadata
           zip -r ${{ matrix.folder }}.zip ${{ matrix.folder }} \
             --exclude=*.git* --exclude=*/node_modules/*
 
       - name: Upload Source Artifact ${{ matrix.folder }}
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.folder }}-Source
