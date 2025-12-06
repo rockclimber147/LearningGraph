@@ -2,7 +2,8 @@ using FilesApiBackend.Services;
 using FilesApiBackend.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new GlobalExceptionFilter());
@@ -13,8 +14,9 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 else
 {
@@ -22,10 +24,9 @@ else
     app.UseHsts();
 }
 app.UseHttpsRedirection();
-
+app.MapControllers();
 InitializeFileDirectories(app);
 
-app.MapControllers();
 app.Run();
 
 
