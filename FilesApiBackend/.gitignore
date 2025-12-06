@@ -1,0 +1,60 @@
+#
+# Standard .NET / C# / ASP.NET Core Ignore File
+#
+
+## Build and Debug Artifacts ##
+# Compiled assemblies and metadata
+[Bb]in/
+[Oo]bj/
+# Compiled native binaries (if applicable)
+*.exe
+*.dll
+*.pdb
+*.suo
+# User-specific temporary files for IDEs
+*.user
+*.userosscodesettings
+*.sln.docstates
+
+## Package and Dependencies ##
+# NuGet packages folder
+.nuget/
+# Dependency caching (for restore/build)
+packages/
+
+## Visual Studio / VS Code Specific ##
+# VS Code extensions and workspace settings
+.vscode/
+# VS Code C# Dev Kit temporary files
+.vs/
+# Other IDE temp files
+*.cache
+*.log
+
+## Temporary and Test Files ##
+# Test results files
+TestResults/
+# Files generated during code coverage
+*.trx
+*.coverage
+*.opencover
+
+## Database Files ##
+# SQLite or other local database files
+*.db
+*.sqlite
+# Local database logs/data
+[Ll]ogs/
+[Dd]ata/
+
+## Environment & Configuration Files ##
+# Specific files containing local settings or connection strings
+# NEVER commit credentials or secrets!
+appsettings.Development.json
+appsettings.Local.json
+# You might exclude specific configuration files if they contain secrets:
+*.json.local
+
+# For Node.js (if you run scripts or keep dev tools in the same repo)
+node_modules/
+npm-debug.log
