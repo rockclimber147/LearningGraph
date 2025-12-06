@@ -1,9 +1,12 @@
-using FilesApiBackend.Services; // 1. Add using statement for IFilesService and FilesService
-using Microsoft.AspNetCore.Mvc;
+using FilesApiBackend.Services;
+using FilesApiBackend.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
-builder.Services.AddControllers(); 
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new GlobalExceptionFilter());
+}); 
 builder.Services.AddScoped<IFilesService, FilesService>();
 
 var app = builder.Build();
@@ -11,6 +14,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
 app.UseHttpsRedirection();
 
