@@ -4,6 +4,23 @@ using FilesApiBackend.Filters;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            var allowedOrigins = builder.Configuration
+                                        .GetSection("CorsSettings:AllowedOrigins")
+                                        .Get<string[]>() ?? Array.Empty<string>();
+
+            policy.WithOrigins(allowedOrigins) 
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new GlobalExceptionFilter());
@@ -24,6 +41,9 @@ else
     app.UseHsts();
 }
 app.UseHttpsRedirection();
+
+app.UseCors(MyAllowSpecificOrigins);
+
 app.MapControllers();
 InitializeFileDirectories(app);
 

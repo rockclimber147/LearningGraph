@@ -12,7 +12,7 @@ namespace FilesApiBackend.Filters
 
             if (context.Exception is FileNotFoundException)
             {
-                statusCode = HttpStatusCode.NotFound; // 404
+                statusCode = HttpStatusCode.NotFound;
             }
             else if (context.Exception is UnauthorizedAccessException)
             {

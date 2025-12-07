@@ -36,7 +36,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     try {
       const data = await apiService.fetchTree();
       console.log(data);
-      setNodes(data);
+      setNodes([data]);
     } catch (err) {
       console.error(err);
     }
@@ -49,7 +49,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
       try {
         const data = await apiService.fetchTree();
         console.log(data);
-        if (isMounted) setNodes(data);
+        if (isMounted) setNodes([data]);
       } catch (err) {
         console.error(err);
       }

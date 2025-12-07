@@ -4,11 +4,11 @@ import { MarkdownFile, MarkdownMetaData } from "../models/markdown";
 export class FilesApiService {
   private baseUrl: string;
 
-  constructor(baseUrl = "/api") {
+  constructor(baseUrl = "http://localhost:5072/api/files") {
     this.baseUrl = baseUrl;
   }
 
-  async fetchTree(): Promise<FileNode[]> {
+  async fetchTree(): Promise<FileNode> {
     const res = await fetch(`${this.baseUrl}/tree`);
     if (!res.ok) throw new Error("Failed to fetch file tree");
     return res.json();

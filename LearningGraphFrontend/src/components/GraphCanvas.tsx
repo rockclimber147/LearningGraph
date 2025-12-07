@@ -18,7 +18,7 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
   const loadTree = async (controller: GraphController) => {
     const fileTree = await apiService.fetchTree();
     console.log("here")
-    controller.addNodes(fileTree)
+    controller.addNodes([fileTree])
   }
 
   useEffect(() => {
