@@ -88,6 +88,26 @@ namespace FilesApiBackend.Services
             var yamlBlock = document.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
             
             var metadata = new MarkdownMetaData { Title = defaultTitle };
+
+            if (yamlBlock != null)
+            {
+                var yaml = yamlBlock.Lines.ToString();
+
+                try
+                {
+                    var data = _deserializer.Deserialize<MarkdownMetaData>(yaml);
+                    data.Title ??= defaultTitle; 
+                    data.Tags ??= [];
+                    data.Prerequisites ??= [];
+                    data.Related ??= [];
+                    
+                    metadata = data;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error deserializing YAML: {ex.Message}");
+                }
+            }
             
             string markdownBody = string.Empty;
             
