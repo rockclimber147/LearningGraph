@@ -54,5 +54,12 @@ namespace FilesApiBackend.Controllers
             await _filesService.RenameNodeAsync(request.Path, request.NewName);
             return Ok();
         }
+
+        [HttpGet("tree")]
+        public async Task<ActionResult<FileNode>> GetTree()
+        {
+            FileNode tree = await _filesService.GetFileTreeAsync();
+            return Ok(tree);
+        }
     }
 }

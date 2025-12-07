@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.SignalR;
+
 namespace FilesApiBackend.Models
 {
     public static class NodeTypes
@@ -23,6 +25,22 @@ namespace FilesApiBackend.Models
     {
         public string Path { get; set; } = string.Empty;
         public string NewName { get; set; } = string.Empty;
+    }
+
+    public class FileNode
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public MarkdownMetaData? Metadata { get; set; } = null;
+        public List<FileNode> Children { get; set; } = [];
+    }
+
+    public class MarkdownMetaData
+    {
+        public string Title { get; set; } = string.Empty;
+        public List<string> Tags { get; set; } = [];
+        public List<string> Prerequisites { get; set; } = [];
+        public List<string> Related { get; set; } = [];
     }
 
 }

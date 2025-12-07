@@ -1,9 +1,11 @@
 using FilesApiBackend.Configuration;
 using FilesApiBackend.Models;
+
 namespace FilesApiBackend.Services
 {
     public interface IFilesService
     {
+        Task<FileNode> GetFileTreeAsync(string relativePath = "");
         Task<string> ReadFileContentAsync(string relativePath);
         Task AddNodeAsync(string parentPath, string name, string type);
         Task DeleteNodeAsync(string fullPath, string type);
@@ -12,8 +14,10 @@ namespace FilesApiBackend.Services
 
     public class FilesService: IFilesService
     {
+        private IMarkdownService _markdownService;
         public FilesService()
         {
+            this._markdownService = new MarkdownService();
             InitializeFileDirectories();
         }
 
@@ -30,6 +34,49 @@ namespace FilesApiBackend.Services
             {
                 Directory.CreateDirectory(dirPath);
             }
+        }
+
+        public Task<FileNode> GetFileTreeAsync(string relativePath = "")
+        {
+            var canonicalStartPath = GetCanonicalPath(relativePath); 
+            var rootNode = GetFileTreeRecursive(canonicalStartPath);
+            
+            return Task.FromResult(rootNode);
+        }
+
+        private FileNode GetFileTreeRecursive(string fullPath)
+        {
+            var attributes = File.GetAttributes(fullPath);
+            var isDirectory = attributes.HasFlag(FileAttributes.Directory);
+            var name = Path.GetFileName(fullPath);
+
+            var node = new FileNode
+            {
+                Name = name,
+                Type = isDirectory ? NodeTypes.Folder : NodeTypes.File,
+            };
+
+            if (isDirectory)
+            {
+                var children = Directory.EnumerateFileSystemEntries(fullPath)
+                    .Select(childPath => GetFileTreeRecursive(childPath))
+                    .OrderByDescending(n => n.Type == NodeTypes.Folder)
+                    .ThenBy(n => n.Name)
+                    .ToList();
+                
+                node.Children = children;
+            }
+            else if (IsMarkdownFile(name))
+            {
+                node.Metadata = _markdownService.ExtractMetadata(fullPath);
+            }
+
+            return node;
+        }
+
+        private static bool IsMarkdownFile(string filename)
+        {
+            return filename.EndsWith(".md", StringComparison.OrdinalIgnoreCase);
         }
     
         public async Task<string> ReadFileContentAsync(string relativePath)
