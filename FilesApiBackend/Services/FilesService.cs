@@ -167,7 +167,8 @@ namespace FilesApiBackend.Services
 
         public Task AddNodeAsync(string parentPath, string name, string type)
         {
-            var fullPath = GetCanonicalPath(Path.Combine(parentPath, name));
+            string markdownFormattedName = SetFileNameAsMarkdown(name);
+            var fullPath = GetCanonicalPath(Path.Combine(parentPath, markdownFormattedName));
 
             if (type.Equals(NodeTypes.Folder, StringComparison.OrdinalIgnoreCase))
             {
@@ -184,6 +185,17 @@ namespace FilesApiBackend.Services
                 throw new ArgumentException("Invalid node type specified.");
             }
             return Task.CompletedTask;
+        }
+
+        private static string SetFileNameAsMarkdown(string name)
+        {
+            string[] illegalchars = ["/", "\\", "."];
+            foreach (string item in illegalchars)
+            {
+                if (name.Contains(item)) throw new ArgumentException("Files cannot contain " + item);
+            }
+
+            return name + ".md";
         }
 
         public Task DeleteNodeAsync(string fullPath, string type)
