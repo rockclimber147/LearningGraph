@@ -14,14 +14,20 @@ namespace FilesApiBackend.Services
     {
         public MarkdownMetaData? ExtractMetadata(string filePath);
         public MarkdownParseResult ExtractContentAndMetadata(string fileContent, string defaultTitle);
+        public string StringifyContentWithMetadata(string content, MarkdownMetaData metadata);
     }
     public class MarkdownService : IMarkdownService
     {
+        private readonly ISerializer _serializer;
         private readonly IDeserializer _deserializer;
         private readonly MarkdownPipeline _pipeline;
 
         public MarkdownService()
         {
+            _serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
             _deserializer = new DeserializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
@@ -101,6 +107,17 @@ namespace FilesApiBackend.Services
                 Content = markdownBody,
                 Metadata = metadata
             };
+        }
+    
+        public string StringifyContentWithMetadata(string content, MarkdownMetaData metadata)
+        {
+            // 1. Serialize the C# DTO to a YAML string
+            var yamlString = _serializer.Serialize(metadata);
+
+            // 2. Combine with delimiters and content (JavaScript equivalent of matter.stringify)
+            var fileWithFrontmatter = $"---\n{yamlString}---\n\n{content.TrimStart()}";
+
+            return fileWithFrontmatter;
         }
     }
 }

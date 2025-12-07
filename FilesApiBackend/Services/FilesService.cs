@@ -5,6 +5,7 @@ namespace FilesApiBackend.Services
 {
     public interface IFilesService
     {
+        Task SaveMarkdownFileAsync(SaveFileRequest request);
         Task<MarkdownFileContent> LoadMarkdownFileAsync(string relativePath);
         Task<FileNode> GetFileTreeAsync(string relativePath = "");
         Task<string> ReadFileContentAsync(string relativePath);
@@ -35,6 +36,28 @@ namespace FilesApiBackend.Services
             {
                 Directory.CreateDirectory(dirPath);
             }
+        }
+
+        public async Task SaveMarkdownFileAsync(SaveFileRequest request)
+        {
+            if (!IsMarkdownFile(request.Filename))
+            {
+                throw new ArgumentException("Invalid file. Only Markdown files in docs/ allowed.");
+            }
+            var canonicalFullPath = GetCanonicalPath(request.Filename);
+            var parentDir = Path.GetDirectoryName(canonicalFullPath);
+
+            if (parentDir != null)
+            {
+                Directory.CreateDirectory(parentDir); 
+            }
+
+            var fileWithFrontmatter = _markdownService.StringifyContentWithMetadata(
+                request.Content, 
+                request.Metadata
+            );
+
+            await File.WriteAllTextAsync(canonicalFullPath, fileWithFrontmatter);
         }
 
         public async Task<MarkdownFileContent> LoadMarkdownFileAsync(string relativePath)
@@ -120,14 +143,25 @@ namespace FilesApiBackend.Services
     
         private static string GetCanonicalPath(string relativePath)
         {
+            var docsDirName = Path.GetFileName(FilePaths.DOCS_DIR.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            var prefix = docsDirName + Path.DirectorySeparatorChar;
+
+            if (relativePath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) || 
+                relativePath.StartsWith(docsDirName + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+            {
+                relativePath = relativePath.Substring(prefix.Length);
+            }
+            
             var fullPath = Path.Combine(FilePaths.DOCS_DIR, relativePath);
+            
             var canonicalFullPath = Path.GetFullPath(fullPath);
             var canonicalDocsPath = Path.GetFullPath(FilePaths.DOCS_DIR);
 
-            if (!canonicalFullPath.StartsWith(canonicalDocsPath))
+            if (!canonicalFullPath.StartsWith(canonicalDocsPath, StringComparison.OrdinalIgnoreCase))
             {
                 throw new UnauthorizedAccessException("Attempted access outside of the defined documentation directory.");
             }
+            
             return canonicalFullPath;
         }
 

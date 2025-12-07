@@ -70,8 +70,34 @@ namespace FilesApiBackend.Controllers
                 return BadRequest(new { error = "Missing filename" });
             }
 
-            var fileData = await _filesService.LoadMarkdownFileAsync(filename.Replace("docs/", ""));
+            var fileData = await _filesService.LoadMarkdownFileAsync(filename);
             return Ok(fileData);
+        }
+
+        [HttpPost("save")]
+        public async Task<IActionResult> SaveFile([FromBody] SaveFileRequest request)
+        {
+
+            if (request == null)
+            {
+                return BadRequest(new { error = "Invalid request body." });
+            }
+
+            try
+            {
+                await _filesService.SaveMarkdownFileAsync(request);
+            
+                return Ok(new { message = "File saved successfully" });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving file: {ex.Message}");
+                return StatusCode(500, new { error = "Failed to save file due to a server error." });
+            }
         }
     }
 }
