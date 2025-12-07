@@ -19,7 +19,7 @@ type FileTreeProps = {
 };
 
 export default function FileTree({ onSelectFile }: FileTreeProps) {
-  const [nodes, setNodes] = useState<FileNode[] | null>(null);
+  const [rootNode, setNodes] = useState<FileNode | null>(null);
   const apiService = useMemo(() => new FilesApiService(), []);
   const [toast, setToast] = useState<{
     message: string;
@@ -35,8 +35,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
   const fetchTreeAsync = async () => {
     try {
       const data = await apiService.fetchTree();
-      console.log(data);
-      setNodes([data]);
+      setNodes(data);
     } catch (err) {
       console.error(err);
     }
@@ -48,8 +47,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     const fetchTree = async () => {
       try {
         const data = await apiService.fetchTree();
-        console.log(data);
-        if (isMounted) setNodes([data]);
+        if (isMounted) setNodes(data);
       } catch (err) {
         console.error(err);
       }
@@ -97,32 +95,32 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     }
   };
 
-  if (!nodes) return <p>Loading files...</p>;
+  if (!rootNode) return <p>Loading files...</p>;
 
   return (
     <ul>
       {toast && <Toast {...toast} onClose={() => setToast(null)} />}
-      {nodes.map((node) =>
-        node.type === "file" ? (
+      {
+        rootNode.type === "file" ? (
           <FileNodeComponent
-            key={node.name}
-            name={node.name}
-            fullPath={node.path || node.name}
+            key={rootNode.name}
+            name={rootNode.name}
+            fullPath={rootNode.path || rootNode.name}
             onSelectFile={onSelectFile}
             onDelete={handleDelete}
             onRename={handleRename}
           />
         ) : (
           <FolderNodeComponent
-            key={node.name}
-            node={node}
+            key={rootNode.name}
+            node={rootNode}
             onSelectFile={onSelectFile}
             onDelete={handleDelete}
             onAdd={handleAdd}
             onRename={handleRename}
           />
         )
-      )}
+      }
     </ul>
   );
 }

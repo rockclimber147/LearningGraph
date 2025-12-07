@@ -25,17 +25,17 @@ export class GraphController {
     // Update button state
     // MouseEvent.buttons is a bitmask: https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
     // Left = 1, Right = 2, Middle = 4
-    this.mouseState.setButtonDown(MouseButtons.Left,  !!(e.buttons & 1));
+    this.mouseState.setButtonDown(MouseButtons.Left, !!(e.buttons & 1));
     this.mouseState.setButtonDown(MouseButtons.Right, !!(e.buttons & 2));
-    this.mouseState.setButtonDown(MouseButtons.Middle,!!(e.buttons & 4));
+    this.mouseState.setButtonDown(MouseButtons.Middle, !!(e.buttons & 4));
   }
-  
+
   handleWheel(e: WheelEvent) {
-    this.updateMousePosition(e)
+    this.updateMousePosition(e);
     const zoomFactor = 1.1; // how much to zoom per wheel notch
     const model = this.model;
     const deltaY = e.deltaY;
-    const mousePos = this.mouseState.lastCoords
+    const mousePos = this.mouseState.lastCoords;
 
     const oldZoom = model.zoomLevel;
     let newZoom = oldZoom;
@@ -60,25 +60,26 @@ export class GraphController {
 
   handleMouseInteractions(view: { render: () => void }) {
     const m = this.mouseState;
-    this.model.updateHover(m.lastCoords)
+    this.model.updateHover(m.lastCoords);
     // ---- Right click adds a node ----
     if (m.rightDown && !m.wasRightDown) {
       const nodePosition = this.model.screenToModelCoords(m.lastCoords);
       const toAdd = new GraphNode(
-          NodeIdGenerator.nextId(),
-          nodePosition,
-          `Node ${NodeIdGenerator.getCurrId()}`
-        )
-      this.model.addNode(toAdd)
-    } if (m.leftDown) {
-      
-      this.model.setClicked(m.lastCoords)
+        NodeIdGenerator.nextId(),
+        nodePosition,
+        `Node ${NodeIdGenerator.getCurrId()}`
+      );
+      this.model.addNode(toAdd);
+    }
+    if (m.leftDown) {
+      this.model.setClicked(m.lastCoords);
       if (this.model.draggedNode) {
-        const lastModelCoords = this.model.screenToModelCoords(m.lastCoords)
+        const lastModelCoords = this.model.screenToModelCoords(m.lastCoords);
         this.model.draggedNode.position.x = lastModelCoords.x;
         this.model.draggedNode.position.y = lastModelCoords.y;
       }
-    } if (!m.leftDown && this.model.draggedNode) {
+    }
+    if (!m.leftDown && this.model.draggedNode) {
       this.model.draggedNode = null;
     }
 
@@ -99,7 +100,7 @@ export class GraphController {
     view.render();
   }
 
-addNodes(fileNodes: FileNode[]) {
+  addNodes(fileNodes: FileNode[]) {
     const nodeMap = new Map<string, number>();
     for (const rootNode of fileNodes) {
       this.traverseAndBuildGraph(rootNode, null, nodeMap);
@@ -113,19 +114,24 @@ addNodes(fileNodes: FileNode[]) {
   ) {
     const nodeId = NodeIdGenerator.nextId();
     const nodeLabel = fileNode.name;
-    
-    const position = new Coordinate(0, 0); 
 
-    const newNode = new GraphNode(nodeId, position, nodeLabel, fileNode.type == "folder" ? "lightGreen" : "lightBlue");
-    console.log(newNode)
+    const position = new Coordinate(0, 0);
+
+    const newNode = new GraphNode(
+      nodeId,
+      position,
+      nodeLabel,
+      fileNode.type == "folder" ? "lightGreen" : "lightBlue"
+    );
+    console.log(newNode);
     this.model.addNode(newNode);
-    
+
     const key = fileNode.path || fileNode.name; // Use path if available, otherwise name
     nodeMap.set(key, nodeId);
 
     if (parentId !== null) {
-        // Connect the current node to its parent (bidirectional connection)
-        this.model.connectNodes(nodeId, parentId);
+      // Connect the current node to its parent (bidirectional connection)
+      this.model.connectNodes(nodeId, parentId);
     }
 
     if (fileNode.children) {
