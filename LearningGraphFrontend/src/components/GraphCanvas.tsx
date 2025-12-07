@@ -15,13 +15,12 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
     animateRef.current = animateEnabled;
   }, [animateEnabled]);
 
+  useEffect(() => {
   const loadTree = async (controller: GraphController) => {
     const fileTree = await apiService.fetchTree();
-    console.log("here")
     controller.addNodes([fileTree])
   }
 
-  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -77,7 +76,7 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
       canvas.removeEventListener("wheel", handleWheel);
       canvas.removeEventListener("contextmenu", handleContextMenu);
     };
-  }, []);
+  }, [apiService]);
 
   return (
     <div>
