@@ -5,6 +5,7 @@ namespace FilesApiBackend.Services
 {
     public interface IFilesService
     {
+        Task<MarkdownFileContent> LoadMarkdownFileAsync(string relativePath);
         Task<FileNode> GetFileTreeAsync(string relativePath = "");
         Task<string> ReadFileContentAsync(string relativePath);
         Task AddNodeAsync(string parentPath, string name, string type);
@@ -34,6 +35,31 @@ namespace FilesApiBackend.Services
             {
                 Directory.CreateDirectory(dirPath);
             }
+        }
+
+        public async Task<MarkdownFileContent> LoadMarkdownFileAsync(string relativePath)
+        {
+            var canonicalFullPath = GetCanonicalPath(relativePath); 
+
+            if (!IsMarkdownFile(Path.GetFileName(relativePath)))
+            {
+                throw new ArgumentException("Invalid file. Only Markdown files are allowed.");
+            }
+            
+            if (!File.Exists(canonicalFullPath))
+            {
+                throw new FileNotFoundException($"File not found at path: {relativePath}");
+            }
+            var fileContent = await File.ReadAllTextAsync(canonicalFullPath);
+            
+            var parseResult = _markdownService.ExtractContentAndMetadata(fileContent, relativePath); 
+
+            return new MarkdownFileContent
+            {
+                FileName = relativePath,
+                Content = parseResult.Content,
+                Metadata = parseResult.Metadata
+            };
         }
 
         public Task<FileNode> GetFileTreeAsync(string relativePath = "")

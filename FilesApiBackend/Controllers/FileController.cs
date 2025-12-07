@@ -61,5 +61,17 @@ namespace FilesApiBackend.Controllers
             FileNode tree = await _filesService.GetFileTreeAsync();
             return Ok(tree);
         }
+
+        [HttpGet("load")]
+        public async Task<ActionResult<MarkdownFileContent>> LoadFile([FromQuery] string filename)
+        {
+            if (string.IsNullOrEmpty(filename))
+            {
+                return BadRequest(new { error = "Missing filename" });
+            }
+
+            var fileData = await _filesService.LoadMarkdownFileAsync(filename.Replace("docs/", ""));
+            return Ok(fileData);
+        }
     }
 }

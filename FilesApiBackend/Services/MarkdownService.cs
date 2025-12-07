@@ -2,10 +2,10 @@ using Markdig;
 using Markdig.Extensions.Yaml;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-
 using FilesApiBackend.Models;
 using Markdig.Syntax;
-using System.Reflection;
+using Markdig.Renderers.Normalize;
+
 
 
 namespace FilesApiBackend.Services
@@ -13,6 +13,7 @@ namespace FilesApiBackend.Services
     public interface IMarkdownService
     {
         public MarkdownMetaData? ExtractMetadata(string filePath);
+        public MarkdownParseResult ExtractContentAndMetadata(string fileContent, string defaultTitle);
     }
     public class MarkdownService : IMarkdownService
     {
@@ -73,6 +74,33 @@ namespace FilesApiBackend.Services
                 Console.WriteLine($"Error deserializing YAML: {ex.Message}");
                 return new MarkdownMetaData { Title = defaultTitle };
             }
+        }
+    
+        public MarkdownParseResult ExtractContentAndMetadata(string fileContent, string defaultTitle)
+        {
+            var document = Markdown.Parse(fileContent, _pipeline);
+            var yamlBlock = document.Descendants<YamlFrontMatterBlock>().FirstOrDefault();
+            
+            var metadata = new MarkdownMetaData { Title = defaultTitle };
+            
+            string markdownBody = string.Empty;
+            
+            using (var writer = new StringWriter())
+            {
+                var renderer = new NormalizeRenderer(writer);
+                
+                foreach (var block in document.Where(b => b != yamlBlock))
+                {
+                    renderer.Render(block);
+                }
+                markdownBody = writer.ToString().Trim();
+            }
+            
+            return new MarkdownParseResult
+            {
+                Content = markdownBody,
+                Metadata = metadata
+            };
         }
     }
 }
