@@ -8,43 +8,23 @@ namespace FilesApiBackend.Services
         Task SaveMarkdownFileAsync(SaveFileRequest request);
         Task<MarkdownFileContent> LoadMarkdownFileAsync(string relativePath);
         Task<FileNode> GetFileTreeAsync(string relativePath = "");
-        Task<string> ReadFileContentAsync(string relativePath);
         Task AddNodeAsync(string parentPath, string name, string type);
         Task DeleteNodeAsync(string fullPath, string type);
         Task RenameNodeAsync(string fullPath, string newName);
     }
 
-    public class FilesService: IFilesService
+    public class FilesService(IMarkdownService markdownService) : IFilesService
     {
-        private IMarkdownService _markdownService;
-        public FilesService()
-        {
-            this._markdownService = new MarkdownService();
-            InitializeFileDirectories();
-        }
-
-        private static void InitializeFileDirectories()
-        {
-            CreateDirIfNotExists(FilePaths.FILES_ROOT_DIR);
-            CreateDirIfNotExists(FilePaths.DOCS_DIR);
-            CreateDirIfNotExists(FilePaths.TRASH_DIR);
-        }
-
-        private static void CreateDirIfNotExists(string dirPath)
-        {
-            if (!Directory.Exists(dirPath))
-            {
-                Directory.CreateDirectory(dirPath);
-            }
-        }
+        private readonly IMarkdownService _markdownService = markdownService;
 
         public async Task SaveMarkdownFileAsync(SaveFileRequest request)
         {
-            if (!IsMarkdownFile(request.Filename))
+            if (!FileHelpers.IsMarkdownFile(request.Filename))
             {
                 throw new ArgumentException("Invalid file. Only Markdown files in docs/ allowed.");
             }
-            var canonicalFullPath = GetCanonicalPath(request.Filename);
+            
+            var canonicalFullPath = FileHelpers.GetCanonicalPath(request.Filename);
             var parentDir = Path.GetDirectoryName(canonicalFullPath);
 
             if (parentDir != null)
@@ -62,9 +42,9 @@ namespace FilesApiBackend.Services
 
         public async Task<MarkdownFileContent> LoadMarkdownFileAsync(string relativePath)
         {
-            var canonicalFullPath = GetCanonicalPath(relativePath); 
+            var canonicalFullPath = FileHelpers.GetCanonicalPath(relativePath); 
 
-            if (!IsMarkdownFile(Path.GetFileName(relativePath)))
+            if (!FileHelpers.IsMarkdownFile(Path.GetFileName(relativePath)))
             {
                 throw new ArgumentException("Invalid file. Only Markdown files are allowed.");
             }
@@ -73,8 +53,8 @@ namespace FilesApiBackend.Services
             {
                 throw new FileNotFoundException($"File not found at path: {relativePath}");
             }
-            var fileContent = await File.ReadAllTextAsync(canonicalFullPath);
             
+            var fileContent = await File.ReadAllTextAsync(canonicalFullPath);
             var parseResult = _markdownService.ExtractContentAndMetadata(fileContent, relativePath); 
 
             return new MarkdownFileContent
@@ -84,10 +64,11 @@ namespace FilesApiBackend.Services
                 Metadata = parseResult.Metadata
             };
         }
+        
 
         public Task<FileNode> GetFileTreeAsync(string relativePath = "")
         {
-            var canonicalStartPath = GetCanonicalPath(relativePath); 
+            var canonicalStartPath = FileHelpers.GetCanonicalPath(relativePath); 
             var rootNode = GetFileTreeRecursive(canonicalStartPath);
             
             return Task.FromResult(rootNode);
@@ -115,60 +96,20 @@ namespace FilesApiBackend.Services
                 
                 node.Children = children;
             }
-            else if (IsMarkdownFile(name))
+            else if (FileHelpers.IsMarkdownFile(name))
             {
-                node.Metadata = _markdownService.ExtractMetadata(fullPath);
+                // This call uses IMarkdownService which is fine
+                node.Metadata = _markdownService.ExtractMetadata(fullPath); 
             }
 
             return node;
         }
 
-        private static bool IsMarkdownFile(string filename)
-        {
-            return filename.EndsWith(".md", StringComparison.OrdinalIgnoreCase);
-        }
-    
-        public async Task<string> ReadFileContentAsync(string relativePath)
-        {
-            var fullPath = Path.Combine(FilePaths.DOCS_DIR, relativePath);
-            var canonicalFullPath = GetCanonicalPath(relativePath);
-
-            if (!File.Exists(canonicalFullPath))
-            {
-                throw new FileNotFoundException($"File not found at path: {relativePath}");
-            }
-
-            return await File.ReadAllTextAsync(canonicalFullPath);
-        }
-    
-        private static string GetCanonicalPath(string relativePath)
-        {
-            var docsDirName = Path.GetFileName(FilePaths.DOCS_DIR.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-            var prefix = docsDirName + Path.DirectorySeparatorChar;
-
-            if (relativePath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) || 
-                relativePath.StartsWith(docsDirName + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-            {
-                relativePath = relativePath.Substring(prefix.Length);
-            }
-            
-            var fullPath = Path.Combine(FilePaths.DOCS_DIR, relativePath);
-            
-            var canonicalFullPath = Path.GetFullPath(fullPath);
-            var canonicalDocsPath = Path.GetFullPath(FilePaths.DOCS_DIR);
-
-            if (!canonicalFullPath.StartsWith(canonicalDocsPath, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new UnauthorizedAccessException("Attempted access outside of the defined documentation directory.");
-            }
-            
-            return canonicalFullPath;
-        }
-
         public Task AddNodeAsync(string parentPath, string name, string type)
         {
-            string markdownFormattedName = SetFileNameAsMarkdown(name);
-            var fullPath = GetCanonicalPath(Path.Combine(parentPath, markdownFormattedName));
+            // Use FileHelpers.SetFileNameAsMarkdown and FileHelpers.GetCanonicalPath
+            string markdownFormattedName = FileHelpers.SetFileNameAsMarkdown(name);
+            var fullPath = FileHelpers.GetCanonicalPath(Path.Combine(parentPath, markdownFormattedName));
 
             if (type.Equals(NodeTypes.Folder, StringComparison.OrdinalIgnoreCase))
             {
@@ -187,22 +128,11 @@ namespace FilesApiBackend.Services
             return Task.CompletedTask;
         }
 
-        private static string SetFileNameAsMarkdown(string name)
-        {
-            string[] illegalchars = ["/", "\\", "."];
-            foreach (string item in illegalchars)
-            {
-                if (name.Contains(item)) throw new ArgumentException("Files cannot contain " + item);
-            }
-
-            return name + ".md";
-        }
-
         public Task DeleteNodeAsync(string fullPath, string type)
         {
-            var canonicalPath = GetCanonicalPath(fullPath);
+            var canonicalPath = FileHelpers.GetCanonicalPath(fullPath);
             var trashPath = Path.Combine(FilePaths.TRASH_DIR, Path.GetFileName(canonicalPath) + "_" + DateTime.Now.Ticks);
-
+            // ... (rest of delete logic remains)
             if (type.Equals(NodeTypes.File, StringComparison.OrdinalIgnoreCase))
             {
                 if (!File.Exists(canonicalPath)) throw new FileNotFoundException($"File not found at: {fullPath}");
@@ -222,7 +152,8 @@ namespace FilesApiBackend.Services
 
         public Task RenameNodeAsync(string fullPath, string newName)
         {
-            var oldPath = GetCanonicalPath(fullPath);
+            var oldPath = FileHelpers.GetCanonicalPath(fullPath);
+            // ... (rest of rename logic remains)
             var parentDir = Path.GetDirectoryName(oldPath);
             
             if (string.IsNullOrEmpty(parentDir)) throw new InvalidOperationException("Cannot rename the root directory.");
@@ -242,6 +173,65 @@ namespace FilesApiBackend.Services
                 throw new FileNotFoundException($"Entry not found at: {fullPath}");
             }
             return Task.CompletedTask;
+        }
+
+        public static class FileHelpers
+        {
+            internal static string GetCanonicalPath(string relativePath)
+            {
+                var docsDirName = Path.GetFileName(FilePaths.DOCS_DIR.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                var prefix = docsDirName + Path.DirectorySeparatorChar;
+
+                if (relativePath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) || 
+                    relativePath.StartsWith(docsDirName + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                {
+                    relativePath = relativePath.Substring(prefix.Length);
+                }
+                
+                var fullPath = Path.Combine(FilePaths.DOCS_DIR, relativePath);
+                
+                var canonicalFullPath = Path.GetFullPath(fullPath);
+                var canonicalDocsPath = Path.GetFullPath(FilePaths.DOCS_DIR);
+
+                if (!canonicalFullPath.StartsWith(canonicalDocsPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new UnauthorizedAccessException("Attempted access outside of the defined documentation directory.");
+                }
+                
+                return canonicalFullPath;
+            }
+
+            internal static bool IsMarkdownFile(string filename)
+            {
+                return filename.EndsWith(".md", StringComparison.OrdinalIgnoreCase);
+            }
+            
+            internal static string SetFileNameAsMarkdown(string name)
+            {
+                var illegalChars = Path.GetInvalidFileNameChars().Union(['/', '\\']);
+                
+                if (name.Any(c => illegalChars.Contains(c)))
+                {
+                    throw new ArgumentException("File name contains illegal characters.");
+                }
+
+                return name.EndsWith(".md", StringComparison.OrdinalIgnoreCase) ? name : name + ".md";
+            }
+            
+            internal static void InitializeFileDirectories()
+            {
+                CreateDirIfNotExists(FilePaths.FILES_ROOT_DIR);
+                CreateDirIfNotExists(FilePaths.DOCS_DIR);
+                CreateDirIfNotExists(FilePaths.TRASH_DIR);
+            }
+
+            private static void CreateDirIfNotExists(string dirPath)
+            {
+                if (!Directory.Exists(dirPath))
+                {
+                    Directory.CreateDirectory(dirPath);
+                }
+            }
         }
     }
 }

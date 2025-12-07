@@ -11,17 +11,6 @@ namespace FilesApiBackend.Controllers
     {
         private readonly IFilesService _filesService = filesService;
 
-        [HttpGet("{**path}")]
-        public async Task<ActionResult<string>> GetFileContent(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return BadRequest("File path must be provided.");
-            }
-            string content = await _filesService.ReadFileContentAsync(path);
-            return Ok(content);
-        }
-
         /// <summary>
         /// Creates a new file or folder.
         /// Client: POST /api/files/add with JSON body
