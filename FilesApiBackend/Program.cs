@@ -26,6 +26,7 @@ builder.Services.AddControllers(options =>
     options.Filters.Add(new GlobalExceptionFilter());
 }); 
 builder.Services.AddScoped<IFilesService, FilesService>();
+builder.Services.AddScoped<IMarkdownService, MarkdownService>();
 
 var app = builder.Build();
 
@@ -40,6 +41,9 @@ else
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
+
+builder.Services.AddLogging();
+
 app.UseHttpsRedirection();
 
 app.UseCors(MyAllowSpecificOrigins);
@@ -57,7 +61,7 @@ static void InitializeFileDirectories(WebApplication webApp)
 
     try
     {
-        var fileService = services.GetRequiredService<IFilesService>();
+        FilesService.FileHelpers.InitializeFileDirectories();
     }
     catch (Exception ex)
     {
