@@ -1,5 +1,6 @@
 import { type Drawable } from "./GraphView";
 import { GraphModel, Coordinate } from "./GraphModel";
+import type { FileNode } from "../components/FileTree/FileTree";
 
 export class GraphNode implements Drawable {
   id: number;
@@ -65,5 +66,16 @@ export class NodeIdGenerator {
 
   static reset(startAt = 1) {
     this.currId = startAt;
+  }
+}
+
+export class NodeFactory {
+  static fromFileNode(fileNode: FileNode, position: Coordinate): GraphNode {
+    return new GraphNode(
+            NodeIdGenerator.nextId(),
+            position,
+            fileNode.name,
+            fileNode.type == "folder" ? "lightGreen" : "lightBlue"
+        );
   }
 }
