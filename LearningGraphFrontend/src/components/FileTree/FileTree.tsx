@@ -100,27 +100,25 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
   return (
     <ul>
       {toast && <Toast {...toast} onClose={() => setToast(null)} />}
-      {
-        rootNode.type === "file" ? (
-          <FileNodeComponent
-            key={rootNode.name}
-            name={rootNode.name}
-            fullPath={rootNode.path || rootNode.name}
-            onSelectFile={onSelectFile}
-            onDelete={handleDelete}
-            onRename={handleRename}
-          />
-        ) : (
-          <FolderNodeComponent
-            key={rootNode.name}
-            node={rootNode}
-            onSelectFile={onSelectFile}
-            onDelete={handleDelete}
-            onAdd={handleAdd}
-            onRename={handleRename}
-          />
-        )
-      }
+      {rootNode.type === "file" ? (
+        <FileNodeComponent
+          key={rootNode.name}
+          name={rootNode.name}
+          fullPath={rootNode.path || rootNode.name}
+          onSelectFile={onSelectFile}
+          onDelete={handleDelete}
+          onRename={handleRename}
+        />
+      ) : (
+        <FolderNodeComponent
+          key={rootNode.name}
+          node={rootNode}
+          onSelectFile={onSelectFile}
+          onDelete={handleDelete}
+          onAdd={handleAdd}
+          onRename={handleRename}
+        />
+      )}
     </ul>
   );
 }
