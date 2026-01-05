@@ -30,9 +30,6 @@ class AIInterpreter:
 
         prompt = f"Summarize these notes and extract 3 keywords:\n\n{notes_text}\n\nSummary:"
         
-        # Yield a space to 'prime' the connection and avoid timeouts
-        yield b" " 
-        
         try:
             for token in self.llm(prompt, stop=['NOTES:', 'Summary:'], stream=True):
                 if token:

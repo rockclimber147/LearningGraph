@@ -1,38 +1,39 @@
 import asyncio
-from fastapi import FastAPI, HTTPException, Body
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from ai_model import ai_engine
 
-app = FastAPI(
-    title="AI Note Interpreter",
-    description="A FastAPI server for streaming academic summaries",
-    version="1.0.0"
-)
+app = FastAPI()
+gpu_semaphore = asyncio.Semaphore(1)
+waiting_count = 0
 
-# 1. Define the Request Schema
-class NotesRequest(BaseModel):
-    notes: str
+@app.websocket("/ws/summarize")
+async def websocket_endpoint(websocket: WebSocket):
+    global waiting_count
+    await websocket.accept()
+    
+    try:
+        notes = await websocket.receive_text()
+        waiting_count += 1
+        
+        if gpu_semaphore.locked():
+            await websocket.send_text(f"QUEUE_STATUS: Waiting... {waiting_count} people in line.")
 
-# 2. The Streaming Route
-@app.post("/summarize")
-async def summarize(request: NotesRequest):
-    """
-    Summarize academic notes using a streaming response.
-    """
-    if not request.notes:
-        raise HTTPException(status_code=400, detail="Missing 'notes' field")
+        async with gpu_semaphore:
+            waiting_count -= 1
+            await websocket.send_text("QUEUE_STATUS: Starting your summary now...")
+            
+            for token in ai_engine.generate_summary_stream(notes):
+                await websocket.send_text(token.decode('utf-8'))
+                await asyncio.sleep(0) 
+            
+            await websocket.send_text("EOF")
 
-    async def event_generator():
-        for token in ai_engine.generate_summary_stream(request.notes):
-            yield token
-            await asyncio.sleep(0)
 
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream",
-        headers={"X-Content-Type-Options": "nosniff"}
-    )
+    except WebSocketDisconnect:
+        waiting_count = max(0, waiting_count - 1)
+        print("User disconnected.")
+    except Exception as e:
+        await websocket.send_text(f"ERROR: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
