@@ -107,17 +107,17 @@ namespace FilesApiBackend.Services
 
         public Task AddNodeAsync(string parentPath, string name, string type)
         {
-            // Use FileHelpers.SetFileNameAsMarkdown and FileHelpers.GetCanonicalPath
-            string markdownFormattedName = FileHelpers.SetFileNameAsMarkdown(name);
-            var fullPath = FileHelpers.GetCanonicalPath(Path.Combine(parentPath, markdownFormattedName));
-
+            FileHelpers.CheckIllegalChars(name);
             if (type.Equals(NodeTypes.Folder, StringComparison.OrdinalIgnoreCase))
             {
+                var fullPath = FileHelpers.GetCanonicalPath(Path.Combine(parentPath, name));
                 if (Directory.Exists(fullPath)) throw new InvalidOperationException("Folder already exists.");
                 Directory.CreateDirectory(fullPath);
             }
             else if (type.Equals(NodeTypes.File, StringComparison.OrdinalIgnoreCase))
             {
+                string markdownFormattedName = FileHelpers.SetFileNameAsMarkdown(name);
+                var fullPath = FileHelpers.GetCanonicalPath(Path.Combine(parentPath, markdownFormattedName));
                 if (File.Exists(fullPath)) throw new InvalidOperationException("File already exists.");
                 return File.WriteAllTextAsync(fullPath, string.Empty);
             }
@@ -132,7 +132,6 @@ namespace FilesApiBackend.Services
         {
             var canonicalPath = FileHelpers.GetCanonicalPath(fullPath);
             var trashPath = Path.Combine(FilePaths.TRASH_DIR, Path.GetFileName(canonicalPath) + "_" + DateTime.Now.Ticks);
-            // ... (rest of delete logic remains)
             if (type.Equals(NodeTypes.File, StringComparison.OrdinalIgnoreCase))
             {
                 if (!File.Exists(canonicalPath)) throw new FileNotFoundException($"File not found at: {fullPath}");
@@ -153,7 +152,6 @@ namespace FilesApiBackend.Services
         public Task RenameNodeAsync(string fullPath, string newName)
         {
             var oldPath = FileHelpers.GetCanonicalPath(fullPath);
-            // ... (rest of rename logic remains)
             var parentDir = Path.GetDirectoryName(oldPath);
             
             if (string.IsNullOrEmpty(parentDir)) throw new InvalidOperationException("Cannot rename the root directory.");
@@ -208,14 +206,17 @@ namespace FilesApiBackend.Services
             
             internal static string SetFileNameAsMarkdown(string name)
             {
+                return name.EndsWith(".md", StringComparison.OrdinalIgnoreCase) ? name : name + ".md";
+            }
+
+            internal static void CheckIllegalChars(string name)
+            {
                 var illegalChars = Path.GetInvalidFileNameChars().Union(['/', '\\']);
                 
                 if (name.Any(c => illegalChars.Contains(c)))
                 {
                     throw new ArgumentException("File name contains illegal characters.");
                 }
-
-                return name.EndsWith(".md", StringComparison.OrdinalIgnoreCase) ? name : name + ".md";
             }
             
             internal static void InitializeFileDirectories()
