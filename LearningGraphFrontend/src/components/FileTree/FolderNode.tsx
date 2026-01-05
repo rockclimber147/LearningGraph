@@ -4,6 +4,9 @@ import FileNodeComponent from "./FileNode";
 import AddNodeRow from "./AddNodeRow";
 import ContextMenu from "./ContextMenu";
 
+const unCollapsed = "v"
+const collapsed = ">"
+
 type FolderNodeProps = {
   node: FileNode;
   parentPath?: string;
@@ -21,6 +24,7 @@ export default function FolderNodeComponent({
   onAdd,
   onRename,
 }: FolderNodeProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [adding, setAdding] = useState(false);
   const [addingType, setAddingType] = useState<"file" | "folder">("file");
   const [renaming, setRenaming] = useState(false);
@@ -32,7 +36,8 @@ export default function FolderNodeComponent({
     options: { label: string; onClick: () => void }[];
   } | null>(null);
 
-  const fullPath = node.path || (parentPath ? `${parentPath}/${node.name}` : node.name);
+  const fullPath =
+    node.path || (parentPath ? `${parentPath}/${node.name}` : node.name);
 
   const handleRightClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -56,7 +61,13 @@ export default function FolderNodeComponent({
             setAdding(true);
           },
         },
-        { label: "Rename", onClick: () => { setRenaming(true); setContextMenu(null); } },
+        {
+          label: "Rename",
+          onClick: () => {
+            setRenaming(true);
+            setContextMenu(null);
+          },
+        },
         { label: "Delete", onClick: () => onDelete(fullPath, "folder") },
       ],
     });
@@ -73,22 +84,36 @@ export default function FolderNodeComponent({
     }
   };
 
+  const handleAddWrapper = async (
+    parentPath: string,
+    name: string,
+    type: "file" | "folder"
+  ) => {
+    onAdd(parentPath, name, type);
+    setIsCollapsed(false);
+  };
+
   return (
     <span className="relative" onContextMenu={handleRightClick}>
       <div className="flex items-center gap-1">
+        <span
+          className="cursor-pointer select-none"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          {isCollapsed ? collapsed : unCollapsed}
+        </span>
         {renaming ? (
-            <input
+          <input
             ref={inputRef}
             className="px-1 border rounded"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={handleKeyDown}
-            onBlur={() => setRenaming(false)} // optional: close on blur
-            />
+            onBlur={() => setRenaming(false)}
+          />
         ) : (
-            <strong>{node.name}</strong>
+          <strong>{node.name}</strong>
         )}
-            
 
         <button
           className="font-bold border-none bg-none cursor-pointer"
@@ -109,30 +134,32 @@ export default function FolderNodeComponent({
       )}
 
       {/* Render children */}
-      <ul className="ml-4">
-        {node.children?.map((child) =>
-          child.type === "file" ? (
-            <FileNodeComponent
-              key={child.name}
-              name={child.name}
-              fullPath={child.path || `${fullPath}/${child.name}`}
-              onSelectFile={onSelectFile}
-              onDelete={onDelete}
-              onRename={onRename}
-            />
-          ) : (
-            <FolderNodeComponent
-              key={child.name}
-              node={child}
-              parentPath={fullPath}
-              onSelectFile={onSelectFile}
-              onDelete={onDelete}
-              onAdd={onAdd}
-              onRename={onRename}
-            />
-          )
-        )}
-      </ul>
+      {!isCollapsed && (
+        <ul className="ml-4">
+          {node.children?.map((child) =>
+            child.type === "file" ? (
+              <FileNodeComponent
+                key={child.name}
+                name={child.name}
+                fullPath={child.path || `${fullPath}/${child.name}`}
+                onSelectFile={onSelectFile}
+                onDelete={onDelete}
+                onRename={onRename}
+              />
+            ) : (
+              <FolderNodeComponent
+                key={child.name}
+                node={child}
+                parentPath={fullPath}
+                onSelectFile={onSelectFile}
+                onDelete={onDelete}
+                onAdd={handleAddWrapper}
+                onRename={onRename}
+              />
+            )
+          )}
+        </ul>
+      )}
 
       {/* Context Menu */}
       {contextMenu && (
