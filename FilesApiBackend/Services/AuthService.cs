@@ -4,12 +4,12 @@ using FilesApiBackend.Repositories;
 
 namespace FilesApiBackend.Services;
 
-public interface IAuthServicce
+public interface IAuthService
 {
     Task<UserMinimalInfo> Login(User userInfo);
 }
 
-public class AuthService(IUserRepository userRepository) : IAuthServicce
+public class AuthService(IUserRepository userRepository) : IAuthService
 {
     private readonly IUserRepository _userRepository = userRepository;
 

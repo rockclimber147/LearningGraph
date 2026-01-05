@@ -15,7 +15,7 @@ builder.Services.AddCors(options =>
         {
             var allowedOrigins = builder.Configuration
                                         .GetSection("CorsSettings:AllowedOrigins")
-                                        .Get<string[]>() ?? Array.Empty<string>();
+                                        .Get<string[]>() ?? [];
 
             policy.WithOrigins(allowedOrigins) 
                   .AllowAnyHeader()
@@ -26,9 +26,11 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new GlobalExceptionFilter());
 }); 
+builder.Services.AddScoped<IUserRepository, JsonUserRepository>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFilesService, FilesService>();
 builder.Services.AddScoped<IMarkdownService, MarkdownService>();
-builder.Services.AddScoped<IUserRepository, JsonUserRepository>();
 
 var app = builder.Build();
 
