@@ -1,5 +1,6 @@
 using FilesApiBackend.Services;
 using FilesApiBackend.Filters;
+using FilesApiBackend.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -27,6 +28,7 @@ builder.Services.AddControllers(options =>
 }); 
 builder.Services.AddScoped<IFilesService, FilesService>();
 builder.Services.AddScoped<IMarkdownService, MarkdownService>();
+builder.Services.AddScoped<IUserRepository, JsonUserRepository>();
 
 var app = builder.Build();
 
