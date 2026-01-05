@@ -17,7 +17,7 @@ export default function MarkdownPage() {
     <div className="p-5">
         {/* Back Button */}
         <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/")}
         className="mb-5 px-4 py-2 bg-[#202020] text-white rounded"
         >
         Back
