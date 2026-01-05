@@ -1,4 +1,3 @@
-import time
 from ctransformers import AutoModelForCausalLM
 
 class AIInterpreter:
