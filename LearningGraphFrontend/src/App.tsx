@@ -36,6 +36,15 @@ export default function App() {
         }
       />
 
+      <Route
+        path="/markdown/file/*"
+        element={
+          <ProtectedRoute>
+            <MarkdownPage />
+          </ProtectedRoute>
+        }
+      />
+
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

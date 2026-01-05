@@ -22,9 +22,9 @@ export default function FileNodeComponent({
     options: { label: string; onClick: () => void }[];
   } | null>(null);
 
-                const [renaming, setRenaming] = useState(false);
-                const [newName, setNewName] = useState(name);
-                const inputRef = useRef<HTMLInputElement>(null);
+  const [renaming, setRenaming] = useState(false);
+  const [newName, setNewName] = useState(name);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input when entering rename mode
   useEffect(() => {
@@ -39,7 +39,13 @@ export default function FileNodeComponent({
       x: e.clientX,
       y: e.clientY,
       options: [
-        { label: "Rename", onClick: () => { setRenaming(true); setContextMenu(null); } },
+        {
+          label: "Rename",
+          onClick: () => {
+            setRenaming(true);
+            setContextMenu(null);
+          },
+        },
         { label: "Delete", onClick: () => onDelete(fullPath, "file") },
       ],
     });
@@ -57,7 +63,10 @@ export default function FileNodeComponent({
   };
 
   return (
-    <span className="relative flex items-center gap-1" onContextMenu={handleRightClick}>
+    <span
+      className="relative flex items-center gap-1"
+      onContextMenu={handleRightClick}
+    >
       {renaming ? (
         <input
           ref={inputRef}

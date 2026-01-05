@@ -1,12 +1,18 @@
-import { useState } from "react";
 import MarkdownEditor from "../components/MarkdownEditor";
 import FileTree from "../components/FileTree/FileTree";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function MarkdownPage() {
   const navigate = useNavigate();
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
-
+  const params = useParams();
+  const selectedFile = params["*"];
+  const handleFileSelect = (filePath: string) => {
+    const encodedPath = filePath
+    .split('/')
+    .map(segment => encodeURIComponent(segment))
+    .join('/');
+    navigate(`/markdown/file/${encodedPath}`);
+  };
     return (
     <div className="p-5">
         {/* Back Button */}
@@ -22,7 +28,7 @@ export default function MarkdownPage() {
         <div className="flex mt-5 h-[80vh]">
         {/* FileTree Sidebar */}
         <div className="w-[250px] border-r border-gray-300 p-3 overflow-y-auto">
-            <FileTree onSelectFile={(filePath) => setSelectedFile(filePath)} />
+            <FileTree onSelectFile={(filePath) => handleFileSelect(filePath)} />
         </div>
 
         {/* Markdown Editor */}
