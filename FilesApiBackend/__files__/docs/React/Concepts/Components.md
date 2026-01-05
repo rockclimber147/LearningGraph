@@ -1,11 +1,12 @@
 ---
 title: TEST
 tags:
-  - react
+- react
 prerequisites:
-  - none
+- none
 related: []
 ---
+
 # React Components
 
 ## **React Components High-Level Overview**

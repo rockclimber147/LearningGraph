@@ -4,6 +4,7 @@ tags: []
 prerequisites: []
 related: []
 ---
+
 # launchSettings.json
 
 **Role:** This file defines the **launch profiles** used by VS Code and the command line to start your application locally.
