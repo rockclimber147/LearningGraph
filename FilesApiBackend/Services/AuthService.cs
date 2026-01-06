@@ -7,6 +7,8 @@ using System.IdentityModel.Tokens.Jwt;
 
 using FilesApiBackend.Models;
 using FilesApiBackend.Repositories;
+using FilesApiBackend.Configuration;
+using Microsoft.Extensions.Options;
 
 
 
@@ -17,9 +19,10 @@ public interface IAuthService
     Task<AccessRefreshPair> Login(UserFullInfo userInfo);
 }
 
-public class AuthService(IUserRepository userRepository) : IAuthService
+public class AuthService(IUserRepository userRepository, IOptions<JwtOptions> jwtOptions) : IAuthService
 {
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
     public async Task<AccessRefreshPair> Login(UserFullInfo userInfo)
     {
@@ -47,19 +50,19 @@ public class AuthService(IUserRepository userRepository) : IAuthService
         };
     }
 
-    private static string GenerateAccessToken(UserFullInfo user)
+    private string GenerateAccessToken(UserFullInfo user)
     {
         var claims = new[] {
             new Claim(ClaimTypes.Name, user.UserName!),
             new Claim(ClaimTypes.Role, "User")
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CHANGE THIS"));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: "yourdomain.com",
-            audience: "yourdomain.com",
+            issuer: _jwtOptions.Issuer,
+            audience: _jwtOptions.Audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(15),
             signingCredentials: creds

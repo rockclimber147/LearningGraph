@@ -1,6 +1,7 @@
 using FilesApiBackend.Services;
 using FilesApiBackend.Filters;
 using FilesApiBackend.Repositories;
+using FilesApiBackend.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -22,6 +23,10 @@ builder.Services.AddCors(options =>
                   .AllowAnyMethod();
         });
 });
+
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection(JwtOptions.SectionName));
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new GlobalExceptionFilter());
