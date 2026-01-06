@@ -1,19 +1,27 @@
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+
 using FilesApiBackend.Models;
 using FilesApiBackend.Repositories;
+
 
 
 namespace FilesApiBackend.Services;
 
 public interface IAuthService
 {
-    Task<UserMinimalInfo> Login(User userInfo);
+    Task<AccessRefreshPair> Login(UserFullInfo userInfo);
 }
 
 public class AuthService(IUserRepository userRepository) : IAuthService
 {
     private readonly IUserRepository _userRepository = userRepository;
 
-    public async Task<UserMinimalInfo> Login(User userInfo)
+    public async Task<AccessRefreshPair> Login(UserFullInfo userInfo)
     {
         if (userInfo.UserName == null || userInfo.Password == null)
         {
@@ -23,9 +31,45 @@ public class AuthService(IUserRepository userRepository) : IAuthService
         var user = await _userRepository.GetUserByUsernameAsync(userInfo.UserName!) ?? throw new Exception("User not found");
         bool isValid = BCrypt.Net.BCrypt.Verify(userInfo.Password, user.Password);
         if (!isValid) throw new Exception("Invalid credentials");
-        return new UserMinimalInfo
+
+        string accessToken = GenerateAccessToken(user);
+        string refreshToken = GenerateRefreshToken();
+
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _userRepository.UpdateUserAsync(user);
+
+        return new AccessRefreshPair
         {
-            UserName = userInfo.UserName
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
         };
+    }
+
+    private static string GenerateAccessToken(UserFullInfo user)
+    {
+        var claims = new[] {
+            new Claim(ClaimTypes.Name, user.UserName!),
+            new Claim(ClaimTypes.Role, "User")
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CHANGE THIS"));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: "yourdomain.com",
+            audience: "yourdomain.com",
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(15),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private static string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
     }
 }

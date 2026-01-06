@@ -58,3 +58,5 @@ appsettings.Local.json
 # For Node.js (if you run scripts or keep dev tools in the same repo)
 node_modules/
 npm-debug.log
+
+json_db

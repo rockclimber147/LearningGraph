@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.SignalR;
-
 namespace FilesApiBackend.Models
 {
     public static class NodeTypes

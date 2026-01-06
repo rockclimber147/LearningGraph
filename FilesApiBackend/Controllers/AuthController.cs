@@ -11,10 +11,10 @@ namespace FilesApiBackend.Controllers
         private readonly IAuthService _authService = authService;
     
         [HttpPost("login")]
-        public async Task<ActionResult<UserMinimalInfo>> Login([FromBody] User user)
+        public async Task<ActionResult<AccessRefreshPair>> Login([FromBody] UserFullInfo user)
         {
-            UserMinimalInfo userMinimalInfo = await _authService.Login(user);
-            return Ok(userMinimalInfo);
+            AccessRefreshPair tokens = await _authService.Login(user);
+            return Ok(tokens);
         }
     }
 }
