@@ -37,6 +37,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFilesService, FilesService>();
 builder.Services.AddScoped<IMarkdownService, MarkdownService>();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<AuthContextAccessor>();
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

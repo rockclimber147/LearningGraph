@@ -16,7 +16,8 @@ namespace FilesApiBackend.Services;
 
 public interface IAuthService
 {
-    Task<AccessRefreshPair> Login(UserFullInfo userInfo);
+    Task<AccessRefreshPair> Login(UserLoginInfo userInfo);
+    Task<UserFullInfo?> ValidateTokenAsync(string token);
 }
 
 public class AuthService(IUserRepository userRepository, IOptions<JwtOptions> jwtOptions) : IAuthService
@@ -24,7 +25,7 @@ public class AuthService(IUserRepository userRepository, IOptions<JwtOptions> jw
     private readonly IUserRepository _userRepository = userRepository;
     private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
-    public async Task<AccessRefreshPair> Login(UserFullInfo userInfo)
+    public async Task<AccessRefreshPair> Login(UserLoginInfo userInfo)
     {
         if (userInfo.UserName == null || userInfo.Password == null)
         {
@@ -74,5 +75,34 @@ public class AuthService(IUserRepository userRepository, IOptions<JwtOptions> jw
     private static string GenerateRefreshToken()
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    }
+
+    public async Task<UserFullInfo?> ValidateTokenAsync(string token)
+    {
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_jwtOptions.Secret);
+
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = true,
+                ValidIssuer = _jwtOptions.Issuer,
+                ValidateAudience = true,
+                ValidAudience = _jwtOptions.Audience,
+                ClockSkew = TimeSpan.Zero 
+            }, out SecurityToken validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            var userName = jwtToken.Claims.First(x => x.Type == ClaimTypes.Name).Value;
+
+            return await _userRepository.GetUserByUsernameAsync(userName);
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

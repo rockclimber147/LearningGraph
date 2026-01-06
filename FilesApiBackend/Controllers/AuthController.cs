@@ -1,3 +1,4 @@
+using FilesApiBackend.Filters;
 using FilesApiBackend.Models;
 using FilesApiBackend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -6,15 +7,56 @@ namespace FilesApiBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController(IAuthService authService): ControllerBase
+    public class AuthController(IAuthService authService, AuthContextAccessor authAccessor): ControllerBase
     {
         private readonly IAuthService _authService = authService;
     
         [HttpPost("login")]
-        public async Task<ActionResult<AccessRefreshPair>> Login([FromBody] UserFullInfo user)
+        public async Task<ActionResult<UserMinimalInfo>> Login([FromBody] UserLoginInfo user)
         {
             AccessRefreshPair tokens = await _authService.Login(user);
-            return Ok(tokens);
+
+            var accessOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                // Secure = true, TODO https prod, http dev config
+                SameSite = SameSiteMode.Strict,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddMinutes(15)
+            };
+
+            var refreshOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                // Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
+            };
+
+            Response.Cookies.Append("accessToken", tokens.AccessToken!, accessOptions);
+            Response.Cookies.Append("refreshToken", tokens.RefreshToken!, refreshOptions);
+
+            return Ok(new { username = user.UserName });
+        }
+
+        [HttpGet("me")]
+        [SessionAuthorize] // This triggers your custom filter logic
+        public IActionResult GetCurrentUser()
+        {
+            // The filter has already populated authAccessor.CurrentUser
+            var user = authAccessor.CurrentUser;
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            // Return minimal info so you don't leak the password hash to the frontend
+            return Ok(new UserMinimalInfo 
+            { 
+                UserName = user.UserName 
+            });
         }
     }
 }
