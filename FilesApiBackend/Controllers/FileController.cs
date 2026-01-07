@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using FilesApiBackend.Services;
 using FilesApiBackend.Models;
+using FilesApiBackend.Filters;
 
 namespace FilesApiBackend.Controllers
 {
@@ -15,6 +16,7 @@ namespace FilesApiBackend.Controllers
         /// Creates a new file or folder.
         /// Client: POST /api/files/add with JSON body
         /// </summary>
+        [SessionAuthorize]
         [HttpPost("add")]
         public async Task<IActionResult> AddNode([FromBody] AddNodeRequest request)
         {
@@ -26,6 +28,7 @@ namespace FilesApiBackend.Controllers
         /// Deletes (moves to trash) a file or folder.
         /// Client: POST /api/files/delete with JSON body
         /// </summary>
+        [SessionAuthorize]
         [HttpPost("delete")]
         public async Task<IActionResult> DeleteNode([FromBody] DeleteNodeRequest request)
         {
@@ -37,6 +40,7 @@ namespace FilesApiBackend.Controllers
         /// Renames a file or folder.
         /// Client: POST /api/files/rename with JSON body
         /// </summary>
+        [SessionAuthorize]
         [HttpPost("rename")]
         public async Task<IActionResult> RenameNode([FromBody] RenameNodeRequest request)
         {
@@ -44,6 +48,7 @@ namespace FilesApiBackend.Controllers
             return Ok();
         }
 
+        [SessionAuthorize]
         [HttpGet("tree")]
         public async Task<ActionResult<FileNode>> GetTree()
         {
@@ -51,6 +56,7 @@ namespace FilesApiBackend.Controllers
             return Ok(tree);
         }
 
+        [SessionAuthorize]
         [HttpGet("load")]
         public async Task<ActionResult<MarkdownFileContent>> LoadFile([FromQuery] string filename)
         {
@@ -63,6 +69,7 @@ namespace FilesApiBackend.Controllers
             return Ok(fileData);
         }
 
+        [SessionAuthorize]
         [HttpPost("save")]
         public async Task<IActionResult> SaveFile([FromBody] SaveFileRequest request)
         {

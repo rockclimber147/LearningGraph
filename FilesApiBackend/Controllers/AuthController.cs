@@ -41,18 +41,15 @@ namespace FilesApiBackend.Controllers
         }
 
         [HttpGet("me")]
-        [SessionAuthorize] // This triggers your custom filter logic
+        [SessionAuthorize]
         public IActionResult GetCurrentUser()
         {
-            // The filter has already populated authAccessor.CurrentUser
             var user = authAccessor.CurrentUser;
 
             if (user == null)
             {
                 return Unauthorized();
             }
-
-            // Return minimal info so you don't leak the password hash to the frontend
             return Ok(new UserMinimalInfo 
             { 
                 UserName = user.UserName 
