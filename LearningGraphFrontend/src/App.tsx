@@ -5,7 +5,6 @@ import LandingPage from "./pages/LandingPage";
 import MarkdownPage from "./pages/MarkdownPage";
 import { useAuth } from "./hooks/auth";
 
-
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { username } = useAuth();
   return username ? children : <Navigate to="/login" replace />;

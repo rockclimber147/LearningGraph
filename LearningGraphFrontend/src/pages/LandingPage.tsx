@@ -1,4 +1,4 @@
-import { useAuth } from "../hooks/auth";
+import { useAuth } from "../hooks/auth"
 import GraphCanvas from "../components/GraphCanvas";
 import { useNavigate } from "react-router-dom";
 

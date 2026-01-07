@@ -20,7 +20,7 @@ namespace FilesApiBackend.Controllers
             {
                 HttpOnly = true,
                 // Secure = true, TODO https prod, http dev config
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.Lax,
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddMinutes(15)
             };
@@ -29,7 +29,7 @@ namespace FilesApiBackend.Controllers
             {
                 HttpOnly = true,
                 // Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.Lax,
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
             };
