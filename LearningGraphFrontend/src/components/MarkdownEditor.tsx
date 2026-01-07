@@ -5,11 +5,8 @@ import Toast from "./ToastComponent";
 import { FilesApiService } from "../services/filesApiService";
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
-import {
-  DefaultMetaData,
-  MarkdownMetaData,
-  MarkdownFile,
-} from "../models/markdown";
+import { DEFAULT_METADATA } from "../models/markdown";
+import type { MarkdownMetaData } from "../models/DTO/FileTree";
 import MarkdownMetaDataComponent from "./MarkDownMetaData";
 
 type MarkdownEditorProps = {
@@ -24,7 +21,11 @@ const saveCurrentFile = async (
 ) => {
   if (!path || !content) return;
   try {
-    await apiService.save(path, content, metaData);
+    await apiService.save({
+      filename: path,
+      content,
+      metadata: metaData,
+    });
     console.log(`Successfully saved: ${path}`);
     return true;
   } catch (err) {
@@ -37,7 +38,7 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
   const editor = useCreateBlockNote();
   const [markdownContent, setMarkdownContent] = useState("");
   const [metaData, setMetaData] = useState<MarkdownMetaData>(
-    new DefaultMetaData()
+    DEFAULT_METADATA
   );
   const [toast, setToast] = useState<{
     message: string;
@@ -87,21 +88,17 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
       if (!path) return;
       try {
         const response = await apiService.load(path);
-        const markdownFile = new MarkdownFile({
-          fileName: response.fileName,
-          content: response.content,
-          metadata: response.metadata,
-        });
+        const markdownFile = response;
 
-        setMetaData(markdownFile.metadata);
-        setMarkdownContent(markdownFile.content);
+        setMetaData(markdownFile!.metadata);
+        setMarkdownContent(markdownFile!.content);
 
-        const blocks = editor.tryParseMarkdownToBlocks(markdownFile.content);
+        const blocks = editor.tryParseMarkdownToBlocks(markdownFile!.content);
         editor.replaceBlocks(editor.document, blocks);
       } catch (err) {
         console.error(err);
         showToast("Error loading file: " + err, "error");
-        setMetaData(new DefaultMetaData());
+        setMetaData(DEFAULT_METADATA);
         setMarkdownContent("");
         editor.replaceBlocks(
           editor.document,

@@ -1,3 +1,5 @@
+import type { ApiResponse, ApiResponseWithContent } from "../models/DTO/ApiResponse";
+
 export class ApiServiceBase {
   protected baseUrl: string;
 
@@ -5,7 +7,22 @@ export class ApiServiceBase {
     this.baseUrl = baseUrl;
   }
 
-  protected async post(endpoint: string, body: unknown, customHeaders?: Record<string, string>) {
+  private async handleResponse<T>(res: Response): Promise<T> {
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || (data && data.success === false)) {
+      const errorMessage = data.message || `API Error: ${res.status}`;
+      throw new Error(errorMessage);
+    }
+
+    return data as T;
+  }
+
+  protected async post<T = void>(
+    endpoint: string, 
+    body: unknown, 
+    customHeaders?: Record<string, string>
+  ): Promise<T extends void ? ApiResponse : ApiResponseWithContent<T>> {
     const headers = {
       "Content-Type": "application/json",
       ...customHeaders,
@@ -14,26 +31,19 @@ export class ApiServiceBase {
     const res = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "POST",
       headers: headers,
-      credentials: "include", 
+      credentials: "include",
       body: JSON.stringify(body),
     });
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.message || `API Error: ${res.status}`);
-    }
-
-    if (res.status === 204) return null;
-    return await res.json();
+    return this.handleResponse(res);
   }
 
-  protected async get(endpoint: string) {
+  protected async get<T>(endpoint: string): Promise<ApiResponseWithContent<T>> {
     const res = await fetch(`${this.baseUrl}${endpoint}`, {
       method: "GET",
       credentials: "include",
     });
 
-    if (!res.ok) throw new Error("Unauthorized or Network Error");
-    return await res.json();
+    return this.handleResponse(res);
   }
 }

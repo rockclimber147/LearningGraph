@@ -1,29 +1,23 @@
 import { ApiServiceBase } from "./apiServiceBase";
-
-export interface UserMinimalInfo {
-  userName: string;
-}
+import type { UserLoginInfo, UserMinimalInfo, UserFullInfo } from "../models/DTO/User";
 
 export class AuthApiService extends ApiServiceBase {
   constructor() {
     super("http://localhost:5072/api/auth");
   }
 
-  async login(
-    username: string,
-    password: string
-  ): Promise<{ username: string }> {
-    return await this.post("/login", {
-      userName: username,
-      password: password,
-    });
+  async login(credentials: UserLoginInfo): Promise<UserFullInfo | null> {
+    const response = await this.post<UserFullInfo>("/login", credentials);
+    return response.content;
   }
 
-  async getMe(): Promise<UserMinimalInfo> {
-    return await this.get("/me");
+  async getMe(): Promise<UserMinimalInfo | null> {
+    const response = await this.get<UserMinimalInfo>("/me");
+    return response.content;
   }
 
-  async logout() {
-    
+  async logout(): Promise<boolean> {
+    const response = await this.post("/logout", {});
+    return response.success;
   }
 }

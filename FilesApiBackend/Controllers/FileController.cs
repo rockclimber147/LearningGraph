@@ -8,7 +8,7 @@ namespace FilesApiBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class FilesController(IFilesService filesService) : ControllerBase
+    public class FilesController(IFilesService filesService) : ApiBaseController
     {
         private readonly IFilesService _filesService = filesService;
 
@@ -21,7 +21,7 @@ namespace FilesApiBackend.Controllers
         public async Task<IActionResult> AddNode([FromBody] AddNodeRequest request)
         {
             await _filesService.AddNodeAsync(request.ParentPath, request.Name, request.Type);
-            return Ok();
+            return Success("File added successfully!");
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace FilesApiBackend.Controllers
         public async Task<IActionResult> DeleteNode([FromBody] DeleteNodeRequest request)
         {
             await _filesService.DeleteNodeAsync(request.Path, request.Type);
-            return Ok();
+            return Success("File deleted successfully!");
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace FilesApiBackend.Controllers
         public async Task<IActionResult> RenameNode([FromBody] RenameNodeRequest request)
         {
             await _filesService.RenameNodeAsync(request.Path, request.NewName);
-            return Ok();
+            return Success("File renamed successfully!");
         }
 
         [SessionAuthorize]
@@ -83,7 +83,7 @@ namespace FilesApiBackend.Controllers
             {
                 await _filesService.SaveMarkdownFileAsync(request);
             
-                return Ok(new { message = "File saved successfully" });
+                return Success("File saved successfully!");
             }
             catch (ArgumentException ex)
             {

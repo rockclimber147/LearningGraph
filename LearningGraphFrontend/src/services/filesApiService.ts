@@ -1,38 +1,49 @@
-import { type FileNode } from "../components/FileTree/FileTree";
-import { MarkdownFile, MarkdownMetaData } from "../models/markdown";
 import { ApiServiceBase } from "./apiServiceBase";
+import type { 
+    FileNode, 
+    MarkdownFileContent, 
+    AddNodeRequest,
+    DeleteNodeRequest,
+    RenameNodeRequest,
+    SaveFileRequest
+} from "../models/DTO/FileTree";
 
 export class FilesApiService extends ApiServiceBase {
   constructor() {
     super("http://localhost:5072/api/files");
   }
 
-  async fetchTree(): Promise<FileNode> {
-    return await this.get("/tree");
+  async fetchTree(): Promise<FileNode | null> {
+    const response = await this.get<FileNode>("/tree");
+    return response.content;
   }
 
-  async add(parentPath: string, name: string, type: "file" | "folder"): Promise<void> {
-    await this.post("/add", { parentPath, name, type });
+  async add(request: AddNodeRequest): Promise<boolean> {
+    const response = await this.post("/add", request);
+    return response.success;
   }
 
-  async delete(fullPath: string, type: "file" | "folder"): Promise<void> {
-    await this.post("/delete", { path: fullPath, type });
+  async delete(request: DeleteNodeRequest): Promise<boolean> {
+    const response = await this.post("/delete", request);
+    return response.success;
   }
 
-  async rename(fullPath: string, newName: string): Promise<void> {
-    await this.post("/rename", { path: fullPath, newName });
+
+  async rename(request: RenameNodeRequest): Promise<boolean> {
+    const response = await this.post("/rename", request);
+    return response.success;
   }
 
-  async load(filePath: string): Promise<MarkdownFile> {
-    const data = await this.get(`/load?filename=${encodeURIComponent(filePath)}`);
-    return new MarkdownFile(data);
+
+  async load(filePath: string): Promise<MarkdownFileContent | null> {
+    const response = await this.get<MarkdownFileContent>(
+      `/load?filename=${encodeURIComponent(filePath)}`
+    );
+    return response.content;
   }
 
-  async save(filePath: string, markdowncontent: string, metaData: MarkdownMetaData): Promise<void> {
-    await this.post("/save", { 
-      filename: filePath, 
-      content: markdowncontent, 
-      metadata: metaData 
-    });
+  async save(request: SaveFileRequest): Promise<boolean> {
+    const response = await this.post("/save", request);
+    return response.success;
   }
 }

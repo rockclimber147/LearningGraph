@@ -4,15 +4,15 @@ import FileNodeComponent from "./FileNode";
 import FolderNodeComponent from "./FolderNode";
 import Toast from "../ToastComponent";
 import { FilesApiService } from "../../services/filesApiService";
-import { MarkdownMetaData } from "../../models/markdown";
+import type { FileNode } from "../../models/DTO/FileTree";
 
-export type FileNode = {
-  name: string;
-  type: "file" | "folder";
-  path?: string;
-  children?: FileNode[];
-  metadata?: MarkdownMetaData;
-};
+// export type FileNode = {
+//   name: string;
+//   type: "file" | "folder";
+//   path?: string;
+//   children?: FileNode[];
+//   metadata?: MarkdownMetaData;
+// };
 
 type FileTreeProps = {
   onSelectFile: (filePath: string) => void;
@@ -20,7 +20,7 @@ type FileTreeProps = {
 
 export default function FileTree({ onSelectFile }: FileTreeProps) {
   const [rootNode, setNodes] = useState<FileNode | null>(null);
-  const apiService = useMemo(() => new FilesApiService(), []);
+  const filesApiService = useMemo(() => new FilesApiService(), []);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -34,7 +34,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
 
   const fetchTreeAsync = async () => {
     try {
-      const data = await apiService.fetchTree();
+      const data = await filesApiService.fetchTree();
       setNodes(data);
     } catch (err) {
       console.error(err);
@@ -46,7 +46,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
 
     const fetchTree = async () => {
       try {
-        const data = await apiService.fetchTree();
+        const data = await filesApiService.fetchTree();
         if (isMounted) setNodes(data);
       } catch (err) {
         console.error(err);
@@ -58,7 +58,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     return () => {
       isMounted = false;
     };
-  }, [apiService]);
+  }, [filesApiService]);
 
   const handleAdd = async (
     parentPath: string,
@@ -66,7 +66,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     type: "file" | "folder"
   ) => {
     try {
-      await apiService.add(parentPath, name, type);
+      await filesApiService.add({parentPath, name, type});
       await fetchTreeAsync();
       showToast("added successfully!", "success");
     } catch (err) {
@@ -77,7 +77,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
   const handleDelete = async (fullPath: string, type: "file" | "folder") => {
     if (!window.confirm(`Are you sure you want to delete ${fullPath}?`)) return;
     try {
-      await apiService.delete(fullPath, type);
+      await filesApiService.delete({path: fullPath, type});
       await fetchTreeAsync();
       showToast("deleted successfully!", "success");
     } catch (err) {
@@ -87,7 +87,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
 
   const handleRename = async (fullPath: string, newName: string) => {
     try {
-      await apiService.rename(fullPath, newName);
+      await filesApiService.rename({path: fullPath, newName});
       await fetchTreeAsync();
       showToast("renamed successfully!", "success");
     } catch (err) {

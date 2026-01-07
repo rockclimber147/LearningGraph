@@ -12,7 +12,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkSession = async () => {
       try {
         const res = await authApi.getMe();
-        setUsername(res.userName);
+        setUsername(res!.userName!);
       } catch {
         setUsername(null);
       } finally {
@@ -23,8 +23,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (user: string, pass: string) => {
-    const res = await authApi.login(user, pass);
-    setUsername(res.username);
+    const res = await authApi.login({
+      userName: user, 
+      password: pass
+    });
+    setUsername(res!.userName);
   };
 
   const logout = async () => {

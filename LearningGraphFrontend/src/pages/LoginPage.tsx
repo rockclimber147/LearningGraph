@@ -11,7 +11,7 @@ export default function LoginPage() {
   const { login } = useAuth();
 
   const handleLogin = async () => {
-    try {
+    try { 
       await login(user, pass);
       navigate("/");
     } catch {

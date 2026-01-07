@@ -7,7 +7,7 @@ namespace FilesApiBackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthController(IAuthService authService, AuthContextAccessor authAccessor): ControllerBase
+    public class AuthController(IAuthService authService, AuthContextAccessor authAccessor): ApiBaseController
     {
         private readonly IAuthService _authService = authService;
     
@@ -37,7 +37,7 @@ namespace FilesApiBackend.Controllers
             Response.Cookies.Append("accessToken", tokens.AccessToken!, accessOptions);
             Response.Cookies.Append("refreshToken", tokens.RefreshToken!, refreshOptions);
 
-            return Ok(new { username = user.UserName });
+            return Ok(new UserMinimalInfo{ UserName = user.UserName });
         }
 
         [HttpGet("me")]
