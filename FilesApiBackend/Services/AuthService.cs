@@ -18,6 +18,7 @@ public interface IAuthService
 {
     Task<AccessRefreshPair> Login(UserLoginInfo userInfo);
     Task<UserFullInfo?> ValidateTokenAsync(string token);
+    Task<AccessRefreshPair> RefreshSession(string refreshToken);
 }
 
 public class AuthService(IUserRepository userRepository, IOptions<JwtOptions> jwtOptions) : IAuthService
@@ -104,5 +105,29 @@ public class AuthService(IUserRepository userRepository, IOptions<JwtOptions> jw
         {
             return null;
         }
+    }
+
+    public async Task<AccessRefreshPair> RefreshSession(string refreshToken)
+    {
+        var user = await _userRepository.GetUserByRefreshTokenAsync(refreshToken);
+
+        if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
+        {
+            throw new Exception("Invalid or expired refresh token");
+        }
+
+        var newAccessToken = GenerateAccessToken(user); 
+        string newRefreshToken = GenerateRefreshToken();
+
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _userRepository.UpdateUserAsync(user);
+
+        return new AccessRefreshPair 
+        { 
+            AccessToken = newAccessToken, 
+            RefreshToken = newRefreshToken
+        };
     }
 }
