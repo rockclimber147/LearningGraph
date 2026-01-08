@@ -6,7 +6,10 @@ import MarkdownPage from "./pages/MarkdownPage";
 import { useAuth } from "./hooks/auth";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { username } = useAuth();
+  const { username, isLoading } = useAuth();
+  if (isLoading) {
+    return <div>Loading session...</div>; 
+  }
   return username ? children : <Navigate to="/login" replace />;
 }
 
