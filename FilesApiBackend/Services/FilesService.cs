@@ -19,12 +19,12 @@ namespace FilesApiBackend.Services
 
         public async Task SaveMarkdownFileAsync(SaveFileRequest request)
         {
-            if (!FileHelpers.IsMarkdownFile(request.Filename))
+            if (!FileHelpers.IsMarkdownFile(request.Path))
             {
                 throw new ArgumentException("Invalid file. Only Markdown files in docs/ allowed.");
             }
             
-            var canonicalFullPath = FileHelpers.GetCanonicalPath(request.Filename);
+            var canonicalFullPath = FileHelpers.GetCanonicalPath(request.Path);
             var parentDir = Path.GetDirectoryName(canonicalFullPath);
 
             if (parentDir != null)

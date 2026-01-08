@@ -27,7 +27,7 @@ namespace FilesApiBackend.Models
 
     public class SaveFileRequest
     {
-        public string Filename { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
         public MarkdownMetaData Metadata { get; set; } = new MarkdownMetaData();
     }

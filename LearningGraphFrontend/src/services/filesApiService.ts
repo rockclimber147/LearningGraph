@@ -7,6 +7,7 @@ import type {
   RenameNodeRequest,
   SaveFileRequest,
 } from "../models/DTO/FileTree";
+import type { ApiResponse } from "../models/DTO/ApiResponse";
 
 export class FilesApiService extends ApiServiceBase {
   constructor() {
@@ -18,19 +19,19 @@ export class FilesApiService extends ApiServiceBase {
     return response.content;
   }
 
-  async add(request: AddNodeRequest): Promise<boolean> {
+  async add(request: AddNodeRequest): Promise<ApiResponse> {
     const response = await this.post("/add", request);
-    return response.success;
+    return response;
   }
 
-  async delete(request: DeleteNodeRequest): Promise<boolean> {
+  async delete(request: DeleteNodeRequest): Promise<ApiResponse> {
     const response = await this.post("/delete", request);
-    return response.success;
+    return response;
   }
 
-  async rename(request: RenameNodeRequest): Promise<boolean> {
+  async rename(request: RenameNodeRequest): Promise<ApiResponse> {
     const response = await this.post("/rename", request);
-    return response.success;
+    return response;
   }
 
   async load(filePath: string): Promise<MarkdownFileContent | null> {
@@ -40,8 +41,8 @@ export class FilesApiService extends ApiServiceBase {
     return response.content;
   }
 
-  async save(request: SaveFileRequest): Promise<boolean> {
+  async save(request: SaveFileRequest): Promise<ApiResponse> {
     const response = await this.post("/save", request);
-    return response.success;
+    return response;
   }
 }

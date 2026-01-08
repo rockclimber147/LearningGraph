@@ -20,18 +20,13 @@ const saveCurrentFile = async (
   metaData: MarkdownMetaData
 ) => {
   if (!path || !content) return;
-  try {
-    await apiService.save({
-      filename: path,
-      content,
-      metadata: metaData,
-    });
-    console.log(`Successfully saved: ${path}`);
-    return true;
-  } catch (err) {
-    console.error(`Save error for ${path}:`, err);
-    return false;
-  }
+  const response = await apiService.save({
+    path: path,
+    content,
+    metadata: metaData,
+  });
+  console.log(response.message);
+  return response;
 };
 
 export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
@@ -71,11 +66,9 @@ export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
 
   const handleManualSave = useCallback(async () => {
     const { path, content, metadata } = currentFileRef.current;
-    const success = await saveCurrentFile(apiService, path, content, metadata);
-    if (success) {
-      showToast("Saved successfully!", "success");
-    } else {
-      showToast("Error saving file.", "error");
+    const response = await saveCurrentFile(apiService, path, content, metadata);
+    if (response) {
+      showToast(response.message, response.success ? "success" : "error");
     }
   }, [apiService]);
 

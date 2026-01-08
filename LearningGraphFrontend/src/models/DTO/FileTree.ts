@@ -43,7 +43,7 @@ export interface RenameNodeRequest {
 }
 
 export interface SaveFileRequest {
-  filename: string;
+  path: string;
   content: string;
   metadata: MarkdownMetaData;
 }

@@ -21,7 +21,7 @@ namespace FilesApiBackend.Controllers
         public async Task<IActionResult> AddNode([FromBody] AddNodeRequest request)
         {
             await _filesService.AddNodeAsync(request.ParentPath, request.Name, request.Type);
-            return Success("File added successfully!");
+            return Success($"{request.ParentPath + "/" + request.Name} added successfully!");
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace FilesApiBackend.Controllers
         public async Task<IActionResult> DeleteNode([FromBody] DeleteNodeRequest request)
         {
             await _filesService.DeleteNodeAsync(request.Path, request.Type);
-            return Success("File deleted successfully!");
+            return Success($"{request.Path} deleted successfully!");
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace FilesApiBackend.Controllers
         public async Task<IActionResult> RenameNode([FromBody] RenameNodeRequest request)
         {
             await _filesService.RenameNodeAsync(request.Path, request.NewName);
-            return Success("File renamed successfully!");
+            return Success($"{request.Path} renamed successfully!");
         }
 
         [SessionAuthorize]
@@ -83,7 +83,7 @@ namespace FilesApiBackend.Controllers
             {
                 await _filesService.SaveMarkdownFileAsync(request);
             
-                return Success("File saved successfully!");
+                return Success($"{request.Path} saved successfully!");
             }
             catch (ArgumentException ex)
             {
