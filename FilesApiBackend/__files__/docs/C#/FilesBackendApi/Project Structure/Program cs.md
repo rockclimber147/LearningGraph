@@ -1,15 +1,16 @@
 ---
 title: Program.cs
 tags:
-  - C#
+- C#
 prerequisites: []
 related: []
 ---
+
 # Program.cs
 
 This is the entry point for the server. It is executed when running
 
-```
+```text
 dotnet run
 ```
 

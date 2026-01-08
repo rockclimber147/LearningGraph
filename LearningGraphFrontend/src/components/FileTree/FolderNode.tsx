@@ -1,11 +1,11 @@
 import { useState, useRef } from "react";
-import { type FileNode } from "../../models/DTO/FileTree"
+import { type FileNode } from "../../models/DTO/FileTree";
 import FileNodeComponent from "./FileNode";
 import AddNodeRow from "./AddNodeRow";
 import ContextMenu from "./ContextMenu";
 
-const unCollapsed = "v"
-const collapsed = ">"
+const unCollapsed = "v";
+const collapsed = ">";
 
 type FolderNodeProps = {
   node: FileNode;

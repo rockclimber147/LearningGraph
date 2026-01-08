@@ -7,7 +7,7 @@ related: []
 
 # Controllers
 
-|                                  |                                                                                                                                                       |                                                   |
+| a                                |                                                                                                                                                       |                                                   |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
 | **Feature/Component**            | **Purpose**                                                                                                                                           | **Example**                                       |
 | `Controllers/FilesController.cs` | The file where the controller class resides.                                                                                                          | `public class FilesController : ControllerBase`   |

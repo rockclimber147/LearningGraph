@@ -37,9 +37,7 @@ const saveCurrentFile = async (
 export default function MarkdownEditor({ filePath }: MarkdownEditorProps) {
   const editor = useCreateBlockNote();
   const [markdownContent, setMarkdownContent] = useState("");
-  const [metaData, setMetaData] = useState<MarkdownMetaData>(
-    DEFAULT_METADATA
-  );
+  const [metaData, setMetaData] = useState<MarkdownMetaData>(DEFAULT_METADATA);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";

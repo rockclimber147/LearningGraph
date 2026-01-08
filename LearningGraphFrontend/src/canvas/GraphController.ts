@@ -1,7 +1,7 @@
 import { GraphModel, Coordinate } from "./GraphModel";
 import { MouseState, MouseButtons } from "./MouseState";
 import { GraphNode, NodeIdGenerator } from "./Node";
-import { type FileNode } from "../components/FileTree/FileTree";
+import type { FileNode } from "../models/DTO/FileTree";
 import { TreeBuilder, type GraphBuilder } from "./GraphBuilders";
 
 export class GraphController {
@@ -104,6 +104,6 @@ export class GraphController {
   }
 
   addNodes(fileNodes: FileNode[]) {
-    this.currentBuilder.build(fileNodes)
+    this.currentBuilder.build(fileNodes);
   }
 }

@@ -1,11 +1,11 @@
 import { ApiServiceBase } from "./apiServiceBase";
-import type { 
-    FileNode, 
-    MarkdownFileContent, 
-    AddNodeRequest,
-    DeleteNodeRequest,
-    RenameNodeRequest,
-    SaveFileRequest
+import type {
+  FileNode,
+  MarkdownFileContent,
+  AddNodeRequest,
+  DeleteNodeRequest,
+  RenameNodeRequest,
+  SaveFileRequest,
 } from "../models/DTO/FileTree";
 
 export class FilesApiService extends ApiServiceBase {
@@ -28,12 +28,10 @@ export class FilesApiService extends ApiServiceBase {
     return response.success;
   }
 
-
   async rename(request: RenameNodeRequest): Promise<boolean> {
     const response = await this.post("/rename", request);
     return response.success;
   }
-
 
   async load(filePath: string): Promise<MarkdownFileContent | null> {
     const response = await this.get<MarkdownFileContent>(

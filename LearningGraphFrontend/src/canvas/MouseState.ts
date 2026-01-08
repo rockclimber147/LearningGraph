@@ -30,9 +30,15 @@ export class MouseState {
 
   setButtonDown(button: MouseButton, down: boolean) {
     switch (button) {
-      case MouseButtons.Left: this.leftDown = down; break;
-      case MouseButtons.Middle: this.middleDown = down; break;
-      case MouseButtons.Right: this.rightDown = down; break;
+      case MouseButtons.Left:
+        this.leftDown = down;
+        break;
+      case MouseButtons.Middle:
+        this.middleDown = down;
+        break;
+      case MouseButtons.Right:
+        this.rightDown = down;
+        break;
     }
   }
 

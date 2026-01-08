@@ -1,7 +1,7 @@
 import { GraphModel } from "./GraphModel";
 
 export interface Drawable {
-  draw(ctx: CanvasRenderingContext2D, model: GraphModel): void
+  draw(ctx: CanvasRenderingContext2D, model: GraphModel): void;
 }
 
 export class GraphView {
@@ -17,11 +17,11 @@ export class GraphView {
     const { ctx, model } = this;
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.fillStyle = "#252525"
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    ctx.fillStyle = "#252525";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    model.layers.forEach(layer => {
-      layer.forEach(drawable => drawable.draw(ctx, model))
-    })
+    model.layers.forEach((layer) => {
+      layer.forEach((drawable) => drawable.draw(ctx, model));
+    });
   }
 }

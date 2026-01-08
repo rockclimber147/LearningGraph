@@ -1,4 +1,7 @@
-import type { ApiResponse, ApiResponseWithContent } from "../models/DTO/ApiResponse";
+import type {
+  ApiResponse,
+  ApiResponseWithContent,
+} from "../models/DTO/ApiResponse";
 
 export class ApiServiceBase {
   protected baseUrl: string;
@@ -19,8 +22,8 @@ export class ApiServiceBase {
   }
 
   protected async post<T = void>(
-    endpoint: string, 
-    body: unknown, 
+    endpoint: string,
+    body: unknown,
     customHeaders?: Record<string, string>
   ): Promise<T extends void ? ApiResponse : ApiResponseWithContent<T>> {
     const headers = {

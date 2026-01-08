@@ -66,7 +66,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
     type: "file" | "folder"
   ) => {
     try {
-      await filesApiService.add({parentPath, name, type});
+      await filesApiService.add({ parentPath, name, type });
       await fetchTreeAsync();
       showToast("added successfully!", "success");
     } catch (err) {
@@ -77,7 +77,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
   const handleDelete = async (fullPath: string, type: "file" | "folder") => {
     if (!window.confirm(`Are you sure you want to delete ${fullPath}?`)) return;
     try {
-      await filesApiService.delete({path: fullPath, type});
+      await filesApiService.delete({ path: fullPath, type });
       await fetchTreeAsync();
       showToast("deleted successfully!", "success");
     } catch (err) {
@@ -87,7 +87,7 @@ export default function FileTree({ onSelectFile }: FileTreeProps) {
 
   const handleRename = async (fullPath: string, newName: string) => {
     try {
-      await filesApiService.rename({path: fullPath, newName});
+      await filesApiService.rename({ path: fullPath, newName });
       await fetchTreeAsync();
       showToast("renamed successfully!", "success");
     } catch (err) {

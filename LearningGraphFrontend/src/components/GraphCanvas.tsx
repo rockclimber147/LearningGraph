@@ -10,29 +10,29 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
   const [animateEnabled, setAnimateEnabled] = useState(true);
   const apiService = useMemo(() => new FilesApiService(), []);
   const animateRef = useRef(true);
-  
+
   useEffect(() => {
     animateRef.current = animateEnabled;
   }, [animateEnabled]);
 
   useEffect(() => {
-  const loadTree = async (controller: GraphController) => {
-    const fileTree = await apiService.fetchTree();
-    controller.addNodes([fileTree])
-  }
+    const loadTree = async (controller: GraphController) => {
+      const fileTree = await apiService.fetchTree();
+      controller.addNodes([fileTree!]);
+    };
 
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const model = new GraphModel()
-    const controller = new GraphController(model)
+    const model = new GraphModel();
+    const controller = new GraphController(model);
     const view = new GraphView(ctx, model);
     const layoutManager = new PhysicsBasedLayoutManager();
     // const layoutManager = new FruchtermanReingoldLayoutManager();
-    loadTree(controller)
+    loadTree(controller);
     const handleMouse = (e: MouseEvent) => {
-      e.preventDefault()
+      e.preventDefault();
       controller.updateMouseState(e);
       controller.handleMouseInteractions(view);
     };
@@ -82,7 +82,7 @@ export default function GraphCanvas({ width = 800, height = 600 }) {
     <div>
       {/* Toggle Button */}
       <button
-        onClick={() => setAnimateEnabled(a => !a)}
+        onClick={() => setAnimateEnabled((a) => !a)}
         className="mb-2 px-3 py-1 bg-[#202020] text-white rounded"
       >
         {animateEnabled ? "Stop Animation" : "Start Animation"}

@@ -1,12 +1,12 @@
 export interface UserMinimalInfo {
-    userName: string | null;
+  userName: string | null;
 }
 
 export interface UserLoginInfo extends UserMinimalInfo {
-    password: string | null;
+  password: string | null;
 }
 
 export interface UserFullInfo extends UserLoginInfo {
-    refreshToken: string | null;
-    refreshTokenExpiry: string | null;
+  refreshToken: string | null;
+  refreshTokenExpiry: string | null;
 }

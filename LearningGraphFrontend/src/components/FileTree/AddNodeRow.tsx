@@ -44,16 +44,10 @@ export default function AddNodeRow({
         onChange={(e) => setName(e.target.value)}
         onKeyDown={handleKeyDown}
       />
-      <button
-        className="bg-[#202020] px-2 rounded"
-        onClick={handleSubmit}
-      >
+      <button className="bg-[#202020] px-2 rounded" onClick={handleSubmit}>
         Add
       </button>
-      <button
-        className="text-red-500 font-bold px-2 rounded"
-        onClick={onClose}
-      >
+      <button className="text-red-500 font-bold px-2 rounded" onClick={onClose}>
         ×
       </button>
     </div>

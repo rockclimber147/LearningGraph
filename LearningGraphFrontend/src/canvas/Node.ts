@@ -1,6 +1,6 @@
 import { type Drawable } from "./GraphView";
 import { GraphModel, Coordinate } from "./GraphModel";
-import type { FileNode } from "../components/FileTree/FileTree";
+import type { FileNode } from "../models/DTO/FileTree";
 
 export class GraphNode implements Drawable {
   id: number;
@@ -12,7 +12,12 @@ export class GraphNode implements Drawable {
   neighbors = new Set<number>();
   isHovered: boolean = false;
 
-  constructor(id: number, position: Coordinate, label: string, color: string = "lightblue") {
+  constructor(
+    id: number,
+    position: Coordinate,
+    label: string,
+    color: string = "lightblue"
+  ) {
     this.id = id;
     this.position = position;
     this.label = label;
@@ -36,9 +41,9 @@ export class GraphNode implements Drawable {
     ctx.beginPath();
     ctx.arc(x, y, this.radius * model.zoomLevel, 0, Math.PI * 2);
     if (this.isHovered) {
-        ctx.fillStyle = "darkblue";
+      ctx.fillStyle = "darkblue";
     } else {
-        ctx.fillStyle = this.color;
+      ctx.fillStyle = this.color;
     }
     ctx.fill();
     ctx.strokeStyle = "black";
@@ -72,10 +77,10 @@ export class NodeIdGenerator {
 export class NodeFactory {
   static fromFileNode(fileNode: FileNode, position: Coordinate): GraphNode {
     return new GraphNode(
-            NodeIdGenerator.nextId(),
-            position,
-            fileNode.name,
-            fileNode.type == "folder" ? "lightGreen" : "lightBlue"
-        );
+      NodeIdGenerator.nextId(),
+      position,
+      fileNode.name,
+      fileNode.type == "folder" ? "lightGreen" : "lightBlue"
+    );
   }
 }

@@ -17,15 +17,14 @@ export class GraphModel {
   }
 
   screenToModelCoords(screen: Coordinate): Coordinate {
-    return screen.clone()
+    return screen
+      .clone()
       .sub(this._globalOffset)
       .scale(1 / this._zoomLevel);
   }
 
   modelToScreenCoords(model: Coordinate): Coordinate {
-    return model.clone()
-      .scale(this._zoomLevel)
-      .add(this._globalOffset);
+    return model.clone().scale(this._zoomLevel).add(this._globalOffset);
   }
 
   addNode(node: GraphNode) {
@@ -33,7 +32,7 @@ export class GraphModel {
   }
 
   getNode(id: number): GraphNode | undefined {
-    return this.nodes.find(n => n.id === id);
+    return this.nodes.find((n) => n.id === id);
   }
 
   connectNodes(a: number, b: number) {
@@ -41,8 +40,8 @@ export class GraphModel {
     const nodeB = this.getNode(b);
     if (!nodeA || !nodeB) {
       return;
-    };
-    
+    }
+
     nodeA.addNeighbor(b);
     nodeB.addNeighbor(a);
 
@@ -59,11 +58,13 @@ export class GraphModel {
     nodeB.removeNeighbor(a);
 
     // remove drawable line
-    this.nodeConnections = this.nodeConnections.filter(l => !l.connects(a, b));
+    this.nodeConnections = this.nodeConnections.filter(
+      (l) => !l.connects(a, b)
+    );
   }
 
   removeNode(id: number) {
-    this.nodes = this.nodes.filter(n => n.id !== id);
+    this.nodes = this.nodes.filter((n) => n.id !== id);
   }
 
   get globalOffset() {
@@ -87,21 +88,31 @@ export class GraphModel {
   }
 
   updateHover(mousePosition: Coordinate) {
-    this.nodes.forEach(node => {
-      if (node.position.clone().sub(this.screenToModelCoords(mousePosition)).length() < node.radius) {
+    this.nodes.forEach((node) => {
+      if (
+        node.position
+          .clone()
+          .sub(this.screenToModelCoords(mousePosition))
+          .length() < node.radius
+      ) {
         node.isHovered = true;
       } else {
         node.isHovered = false;
       }
-    })
+    });
   }
 
   setClicked(mousePosition: Coordinate) {
-    this.nodes.forEach(node => {
-      if (node.position.clone().sub(this.screenToModelCoords(mousePosition)).length() < node.radius) {
+    this.nodes.forEach((node) => {
+      if (
+        node.position
+          .clone()
+          .sub(this.screenToModelCoords(mousePosition))
+          .length() < node.radius
+      ) {
         this.draggedNode = node;
-      } 
-    })
+      }
+    });
   }
 }
 
@@ -137,7 +148,7 @@ export class Coordinate {
   }
 
   length(): number {
-    return Math.sqrt(this.x * this.x + this.y * this.y)
+    return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 
   normalize() {

@@ -1,5 +1,9 @@
 import { ApiServiceBase } from "./apiServiceBase";
-import type { UserLoginInfo, UserMinimalInfo, UserFullInfo } from "../models/DTO/User";
+import type {
+  UserLoginInfo,
+  UserMinimalInfo,
+  UserFullInfo,
+} from "../models/DTO/User";
 
 export class AuthApiService extends ApiServiceBase {
   constructor() {

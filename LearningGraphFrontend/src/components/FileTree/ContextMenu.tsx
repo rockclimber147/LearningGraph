@@ -7,7 +7,12 @@ type ContextMenuProps = {
   onClose: () => void;
 };
 
-export default function ContextMenu({ x, y, options, onClose }: ContextMenuProps) {
+export default function ContextMenu({
+  x,
+  y,
+  options,
+  onClose,
+}: ContextMenuProps) {
   return createPortal(
     <ul
       className="fixed bg-gray-800 text-white rounded shadow-md z-50"
