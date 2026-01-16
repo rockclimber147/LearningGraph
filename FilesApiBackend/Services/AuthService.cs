@@ -54,17 +54,22 @@ public class AuthService(IUserRepository userRepository, IOptions<JwtOptions> jw
 
     private string GenerateAccessToken(UserFullInfo user)
     {
-        var claims = new[] {
-            new Claim(ClaimTypes.Name, user.UserName!),
-            new Claim(ClaimTypes.Role, "User")
+        var claims = new List<Claim> {
+            new(ClaimTypes.Name, user.UserName!),
+            new(ClaimTypes.Role, "User")
         };
+
+        foreach (var aud in _jwtOptions.Audiences)
+        {
+            claims.Add(new Claim(JwtRegisteredClaimNames.Aud, aud));
+        }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             issuer: _jwtOptions.Issuer,
-            audience: _jwtOptions.Audience,
+            audience: null,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(15),
             signingCredentials: creds
@@ -92,7 +97,7 @@ public class AuthService(IUserRepository userRepository, IOptions<JwtOptions> jw
                 ValidateIssuer = true,
                 ValidIssuer = _jwtOptions.Issuer,
                 ValidateAudience = true,
-                ValidAudience = _jwtOptions.Audience,
+                ValidAudiences = _jwtOptions.Audiences,
                 ClockSkew = TimeSpan.Zero 
             }, out SecurityToken validatedToken);
 
