@@ -35,6 +35,22 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
+        },
+        {
+            "name": "Python: FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "main:app",
+                "--reload",
+                "--port", "5000"
+            ],
+            "jinja": true,
+            "cwd": "${workspaceFolder}/AINoteInterpreter",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/AINoteInterpreter"
+            }
         }
     ]
 }
