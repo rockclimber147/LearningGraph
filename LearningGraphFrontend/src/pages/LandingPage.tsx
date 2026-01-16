@@ -22,6 +22,13 @@ export default function LandingPage() {
       </button>
 
       <button
+        onClick={() => navigate("/aisummary")}
+        className="block mb-5 px-4 py-2 bg-[#202020] text-white rounded"
+      >
+        Open Summary Page
+      </button>
+
+      <button
         onClick={logout}
         className="px-4 py-2 bg-[#202020] text-white rounded"
       >

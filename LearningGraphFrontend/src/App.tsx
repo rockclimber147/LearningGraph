@@ -4,6 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import LandingPage from "./pages/LandingPage";
 import MarkdownPage from "./pages/MarkdownPage";
 import { useAuth } from "./hooks/auth";
+import SummaryPage from "./pages/AINoteInterpreterPage";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { username, isLoading } = useAuth();
@@ -43,6 +44,15 @@ export default function App() {
         element={
           <ProtectedRoute>
             <MarkdownPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/aisummary"
+        element={
+          <ProtectedRoute>
+            <SummaryPage />
           </ProtectedRoute>
         }
       />
