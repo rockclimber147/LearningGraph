@@ -3,7 +3,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, status
 from jose import jwt, JWTError
 
 from ai_model import ai_engine
-from services import AuthService
+from services import AuthService, AiService
 
 app = FastAPI()
 gpu_semaphore = asyncio.Semaphore(1)
@@ -14,31 +14,21 @@ async def websocket_endpoint(websocket: WebSocket):
     access_token = websocket.cookies.get("accessToken")
     try:
         user_payload = AuthService.authenticate(access_token)
-        user_id = user_payload.get("sub")
-        print(f"Summarizing for user: {user_id}")
     except JWTError:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
-    
-    global waiting_count
+
     await websocket.accept()
     
     try:
         notes = await websocket.receive_text()
-        waiting_count += 1
-        
-        if gpu_semaphore.locked():
-            await websocket.send_text(f"QUEUE_STATUS: Waiting... {waiting_count} people in line.")
+        await AiService.get_summary_stream(notes, websocket)
 
-        async with gpu_semaphore:
-            waiting_count -= 1
-            await websocket.send_text("QUEUE_STATUS: Starting your summary now...")
-            
-            async for token_bytes in ai_engine.generate_summary_stream(notes):
-                token = token_bytes.decode('utf-8')
-                await websocket.send_text(token)
-            
-            await websocket.send_text("EOF")
+    except WebSocketDisconnect:
+        AiService.decrement_waiting_count()
+        print(f"User {user_payload.get('sub')} disconnected.")
+    except Exception as e:
+        await websocket.send_text(f"ERROR: {str(e)}")
 
 
     except WebSocketDisconnect:
