@@ -22,9 +22,9 @@ async def websocket_endpoint(websocket: WebSocket):
             waiting_count -= 1
             await websocket.send_text("QUEUE_STATUS: Starting your summary now...")
             
-            for token in ai_engine.generate_summary_stream(notes):
-                await websocket.send_text(token.decode('utf-8'))
-                await asyncio.sleep(0) 
+            async for token_bytes in ai_engine.generate_summary_stream(notes):
+                token = token_bytes.decode('utf-8')
+                await websocket.send_text(token)
             
             await websocket.send_text("EOF")
 
