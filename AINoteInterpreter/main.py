@@ -13,7 +13,9 @@ waiting_count = 0
 async def websocket_endpoint(websocket: WebSocket):
     access_token = websocket.cookies.get("accessToken")
     try:
-        AuthService.authenticate(access_token)
+        user_payload = AuthService.authenticate(access_token)
+        user_id = user_payload.get("sub")
+        print(f"Summarizing for user: {user_id}")
     except JWTError:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
